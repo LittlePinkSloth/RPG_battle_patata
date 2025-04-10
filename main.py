@@ -20,7 +20,7 @@ def game_loop(player):
 
 def main():
     clear_console()
-    player = chose_player()
+    player = openning()
     print(f"Welcome to our dungeon, {player.name}, proud {player.__class__.__name__}!")
     wait_key()
     clear_console()

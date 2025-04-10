@@ -1,5 +1,6 @@
 import random
 from .data import GameObject
+from .items import Item
 
 
 class RPGException (BaseException) :
@@ -70,6 +71,7 @@ class Player(Character) :
         self.inventory = []
         self.exp = 0
         self.lvl = 1
+        self.luck = 0
 
 
     def lvl_up(self):
@@ -123,8 +125,10 @@ class Player(Character) :
                         self.myturn(adv)
                         break
                     try :
-                        self.use_item(self.inventory[int(choice)-1])
-                        del self.inventory[int(choice)-1]
+                        item = self.inventory[int(choice)-1]
+                        self.use_item(item)
+                        if item.__class__.__name__ == 'Wearable' : break
+                        else : del self.inventory[int(choice)-1]
                         break
                     except IndexError :
                         pass
@@ -141,6 +145,46 @@ class Player(Character) :
             print(dd)
         except Exception as e :
             print(f"Sorry, something went wrong with your item : {e}")
+
+    def to_dict(self):
+        return {
+            "class": self.__class__.__name__,
+            "name": self.name,
+            "hp": self.hp,
+            "maxhp": self.maxhp,
+            "exp": self.exp,
+            "lvl" : self.lvl,
+            "mana" : self.mana,
+            "maxma" : self.maxma,
+            "att" : self.att,
+            "df" : self.df,
+            "luck" : self.luck,
+            "inventory": [item.to_dict() for item in self.inventory]
+        }
+
+    @staticmethod
+    def from_dict(data):
+        char_class = data["class"]
+        if char_class == "Baker":
+            char = Baker(data["name"])
+        elif char_class == "NarcissicPerverse":
+            char = NarcissicPerverse(data["name"])
+        elif char_class == "Gambler":
+            char = Gambler(data["name"])
+        else:
+            char = Player(data["name"])  # fallback
+
+        char.hp = data["hp"]
+        char.maxhp = data["maxhp"]
+        char.mana = data["mana"]
+        char.maxma = data["maxma"]
+        char.att = data["att"]
+        char.luck = data["luck"]
+        char.lvl = data["lvl"]
+        char.df = data["df"]
+        char.exp = data["exp"]
+        char.inventory = [Item.from_dict(item_data) for item_data in data["inventory"]]
+        return char
 
 class Baker(Player) :
     definition = "Baker : player who has more hp and attack. Special attack (5) : strong gluten. Divides by 2 the ennemy attack, and if you have luck, divides the defense too."

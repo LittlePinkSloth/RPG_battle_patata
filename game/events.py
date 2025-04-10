@@ -1,6 +1,16 @@
-import msvcrt, os
+import msvcrt, os, json
 from .characters import *
 from .items import *
+
+
+def save_game(player, filename="savegame.json"):
+    with open(filename, "w") as f:
+        json.dump(player.to_dict(), f, indent=4)
+
+def load_game(filename="savegame.json"):
+    with open(filename, "r") as f:
+        data = json.load(f)
+        return Player.from_dict(data)
 
 def display_stats(ply, adv) :
     nbchar = len(adv.__str__()) if len(adv.__str__()) > len(ply.__str__()) else len(ply.__str__())
@@ -39,6 +49,27 @@ def enemy_generator(ply) :
             eny_gen = EnyRageDog('Weakest Mouse', hp = 1, att = 1, df = 1)
 
     return eny_gen
+
+def openning() :
+    print("Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?\n1 : Load a game\n2 : Start a new one")
+    rep = input("--> ")
+    while rep not in ['1', '2'] :
+        rep = input("--> ")
+
+    if rep == '2' :
+        return chose_player()
+    else :
+        print("To load a game, the game file need to be a '.json'. You need to write exactly were this file is (the full path to it, including the file name and the .json extension), otherwise, it will bug and you'll juste start a new game.")
+        file = input("--> ")
+        try :
+            ply = load_game(file)
+            print("Character successfully loaded. Have fun :).")
+            return ply
+        except Exception as e:
+            print(
+                f"Sorry smt went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
+            return chose_player()
+
 
 def chose_player() :
     name = input("What is your name ?\n--> ").strip()
@@ -81,11 +112,11 @@ def item_generator(ply) :
             case 1 :
                 return Eatable('Health potion', hp = hp)
             case 2 :
-                return Eatable('Adaptive Health potion', kind ='adaptive', hp = 1)
+                return Eatable('Adaptive Health potion', attribut ='adaptive', hp = 1)
             case 3 :
                 return Eatable('Mana potion', mana=mana)
             case 4 :
-                return Eatable('Adaptive Mana potion', kind='adaptive', mana=1)
+                return Eatable('Adaptive Mana potion', attribut='adaptive', mana=1)
             case 5 :
                 return Eatable('Bread and cheese', hp = hp, mana = mana)
     else :
@@ -125,17 +156,29 @@ def chest(ply) :
 
 def fire_camp(ply) :
     print("You just arrived to a peacefull place in this horrible dungeon. You can get some rest and be healed by half of your total hp.")
-    heal = input("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n--> ")
-    while heal not in ['1', '2'] :
+    heal = input("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n3 : I prefer to save the game !\n--> ")
+    while heal not in ['1', '2', '3'] :
         heal = input("--> ")
-    if heal == '2' : return print("Ok ok, no need to shout out... So, you can continue.")
 
-    ply.hp += int(ply.maxhp/2)
-    if ply.hp > ply.maxhp : ply.hp = ply.maxhp
-    ply.mana += int(ply.maxma/2)
-    if ply.mana > ply.maxma : ply.mana = ply.maxma
+    match heal :
+        case '2' :
+            return print("Ok ok, no need to shout out... So, you can continue.")
+        case '1' :
+            ply.hp += int(ply.maxhp/2)
+            if ply.hp > ply.maxhp : ply.hp = ply.maxhp
+            ply.mana += int(ply.maxma/2)
+            if ply.mana > ply.maxma : ply.mana = ply.maxma
+            print(f"You rested sucessfully. You feel better : {ply.hp}/{ply.maxhp} hp, {ply.mana}/{ply.maxma} mana.")
+        case '3' :
+            try :
+                file = ply.name + ".json"
+                save_game(ply, file)
+                print("Game successfully saved. You can continue !")
+            except Exception as e :
+                print(f"Sorry smt went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
+        case _ :
+            return "It seems something went wrong, so you just continue your adventure in the dungeon."
 
-    print(f"You rested sucessfully. You feel better : {ply.hp}/{ply.maxhp} hp, {ply.mana}/{ply.maxma} mana.")
 
 def event_generator(ply) :
     event = random.randint(1,5)
