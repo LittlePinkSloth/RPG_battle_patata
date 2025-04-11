@@ -16,13 +16,17 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 - Gain d'expérience
 - Statistiques affichées à chaque tour
 - Console clear et pause pour une meilleure expérience utilisateur
+- Sauvegarde et chargement de personnage
+- Texte en couleur pour meilleur confort de jeu
+- Ajout de monstres "Elite" et "Boss" pour toujours plus de challenge !
 
 ## 🚀 Lancer le jeu
 
 Assurez-vous d'utiliser **Python 3.10+**.  
-Clonez le dépôt puis lancez simplement le fichier `main.py` :
+Clonez le dépôt, installez les dépendances, puis lancez simplement le fichier `main.py` :
 
 ```bash
+pip install -r requirements.txt
 python main.py
 ```
 
@@ -37,10 +41,13 @@ python main.py
 
 ## 📦 Dépendances
 
-Pas de dépendance externe ! Le jeu utilise uniquement :  
 - `random`
 - `msvcrt`
 - `os`
+- `genericpath`
+
+Dépendance externe :
+- `colorama`
 
 ## 📝 Licence
 

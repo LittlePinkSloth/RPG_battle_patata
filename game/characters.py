@@ -1,6 +1,34 @@
 import random
 from .data import GameObject
 from .items import Item
+from colorama import Fore, Style
+
+def pprint(color) :
+    def inner(txt) :
+        match color :
+            case 'RED' :
+                print(Fore.RED + Style.BRIGHT+ txt + Style.RESET_ALL)
+            case 'BLUE' :
+                print(Fore.BLUE + Style.BRIGHT + txt + Style.RESET_ALL)
+            case 'GREEN' :
+                print(Fore.GREEN + txt + Style.RESET_ALL)
+            case 'YELLOW' :
+                print(Fore.YELLOW + txt + Style.RESET_ALL)
+            case 'CYAN' :
+                print(Fore.CYAN + txt + Style.RESET_ALL)
+            case 'MAGENTA' :
+                print(Fore.MAGENTA + txt + Style.RESET_ALL)
+            case _ :
+                print(Fore.WHITE + txt + Style.RESET_ALL)
+
+    return inner
+
+rprint = pprint('RED')
+bprint = pprint('BLUE')
+nprint = pprint('GREEN')
+uprint = pprint('YELLOW')
+dprint = pprint('default')
+
 
 
 class RPGException (BaseException) :
@@ -53,7 +81,10 @@ class Character(GameObject) :
     def attack_target(self, enemy):
         dc = self.dice()
         if dc == 1 :
-            print(f"{self.name} attacks and... Failed. {enemy.name} is laughing.")
+            if isinstance(self,Player) :
+                bprint(f"\n{self.name} attacks and... Failed. {enemy.name} is laughing.")
+            else :
+                rprint(f"\n{self.name} attacks and... Failed. {enemy.name} is laughing.")
             return
         elif 5 <= dc :
             atk = self.att * 2
@@ -61,9 +92,15 @@ class Character(GameObject) :
             atk = self.att
         try :
             dmg = enemy.take_damage(atk)
-            print(f"{self.name} attacked and dealt {dmg} damage.")
+            if isinstance(self, Player):
+                bprint(f"\n{self.name} attacked and dealt {dmg} damage.")
+            else :
+                rprint(f"\n{self.name} attacked and dealt {dmg} damage.")
         except DeadCharacter :
-            print(f"{self.name} attacked. {enemy.name} took too much damage.")
+            if isinstance(self, Player):
+                bprint(f"\n{self.name} attacked. {enemy.name} took too much damage.")
+            else :
+                rprint(f"\n{self.name} attacked. {enemy.name} took too much damage.")
 
 class Player(Character) :
     def __init__(self, name, maxhp = 20, maxma = 10, att = 2, df = 2):
@@ -146,6 +183,7 @@ class Player(Character) :
         except Exception as e :
             print(f"Sorry, something went wrong with your item : {e}")
 
+
     def to_dict(self):
         return {
             "class": self.__class__.__name__,
@@ -195,20 +233,20 @@ class Baker(Player) :
     def special_attack(self, enemy):
         if self.mana >= 5 :
             self.mana -= 5
-            print(f"You invoke {self.__special}.")
+            print(f"\nYou invoke {self.__special}.")
             de = self.dice()
             if de == 6 :
-                print("Critical hit ! Enemy attack and defense are divided by 2.")
+                bprint("Critical hit ! Enemy attack and defense are divided by 2.")
                 enemy.att = int(enemy.att/2)
                 enemy.df = int(enemy.df/ 2)
             else :
-                print("Enemy attack is divided by 2.")
+                bprint("Enemy attack is divided by 2.")
                 enemy.att = int(enemy.att / 2)
         else :
-            print("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
+            bprint("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
 
 class NarcissicPerverse(Player) :
-    definition = "Narcissic perverse : player who has more mana. Special attack (5) : deals some damages to enemy and heal of half."
+    definition = "Narcissic perverse : player who has more mana. Special attack (5) : Guiltifying ! Deals some damages to enemy and heal of half."
     def __init__(self, name):
         super().__init__(name, maxma=15)
         self.__special = "Guiltifying"
@@ -216,40 +254,61 @@ class NarcissicPerverse(Player) :
     def special_attack(self, enemy):
         if self.mana >= 5 :
             self.mana -= 5
-            print(f"You invoke {self.__special}.")
-            dmg = int(4*1.5*self.lvl)
+            bprint(f"\nYou invoke {self.__special}.")
+            dmg = int(4*1.2*self.lvl)
             self.hp += int(dmg/2)
             if self.hp > self.maxhp : self.hp = self.maxhp
             enemy.hp -= dmg
-            print(f"{enemy.name} enemy lost {dmg} hp while you healed by {int(dmg/2)}.")
+            bprint(f"{enemy.name} enemy lost {dmg} hp while you healed by {int(dmg/2)}.")
             try :
                 enemy.is_alive()
             except DeadCharacter :
                 print("Enemy dead.")
         else :
-            print("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
+            bprint("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
 
 class Gambler(Player) :
-    definition = "Gambler : player who has a better luck. Special attack (3) : roll a dice. If 6 or higher, inflicts half of the enemy max hp damages."
+    definition = "Gambler : player who has a better luck. Special attack (3) : Spring rolls. If 6 or higher, inflicts half of the enemy max hp damages."
     def __init__(self, name):
-        super().__init__(name)
-        self.luck = 1
+        super().__init__(name, df=3,maxhp=22)
+        self.luck = 2
         self.__special = "Spring rolls"
 
     def special_attack(self, enemy):
         if self.mana >= 3 :
             self.mana -= 3
-            print(f"You invoke {self.__special}.")
+            bprint(f"\nYou invoke {self.__special}.")
             de = self.dice()
-            if de >= 6 :
-                print(f"{de} ! {enemy.name} suffers {int(enemy.maxhp/2)} damages.")
+            if de == 5 :
+                bprint(f"{de}... Not that bad ! {enemy.name} suffers {int(enemy.maxhp/4)}.")
+            elif 6<= de <= 8 :
+                bprint(f"{de} ! {enemy.name} suffers {int(enemy.maxhp/2)} damages.")
                 enemy.hp -= int(enemy.maxhp/2)
                 try:
                     enemy.is_alive()
                 except DeadCharacter:
                     print("Enemy dead.")
+            elif de > 8 :
+                l = random.randint(1, de-8)
+                bprint(f"{de} ! {enemy.name} suffers {int(enemy.maxhp / 2)} damages.")
+                enemy.hp -= int(enemy.maxhp / 2)
+                try:
+                    enemy.is_alive()
+                except DeadCharacter:
+                    print("Enemy dead.")
+                match l :
+                    case 1,2 :
+                        bprint(f"{enemy.name} also lost {int(enemy.att / 4)} attack.")
+                        enemy.att -= int(enemy.att / 4)
+                    case 3,4 :
+                        bprint(f"{enemy.name} also lost {int(enemy.df / 4)} defense.")
+                        enemy.df -= int(enemy.df / 4)
+                    case _ :
+                        bprint(f"{enemy.name} also lost {int(enemy.att / 4)} attack and {int(enemy.df / 4)} defense.")
+                        enemy.att -= int(enemy.att / 4)
+                        enemy.df -= int(enemy.df / 4)
             else :
-                print(f"{de}... Nice try but it does nothing.")
+                bprint(f"{de}... Nice try but it does nothing.")
 
     def dice(self):
         return random.randint(1, 6+self.luck)
@@ -258,9 +317,16 @@ class Gambler(Player) :
         super().lvl_up()
         if self.lvl % 5 == 0 :
             self.luck +=1
-            print("You alse increase your luck by 1.")
+            print("You also increase your luck by 1.")
 
-class EnyOldMan(Character) :
+class Eny(Character) :
+    nb_eny = 0
+    def __init__(self, name, maxhp,att, df):
+        super().__init__(name=name, maxhp=maxhp, att=att, df=df)
+        Eny.nb_eny +=1
+
+
+class EnyOldMan(Eny) :
     definition = "An old man bothered by your presence. He sometimes forgot things."
     def __init__(self, name, hp, att, df):
         super().__init__(name = name, maxhp = hp-2, att = att, df = df*0)
@@ -273,11 +339,11 @@ class EnyOldMan(Character) :
         self.is_alive()
         i = self.dice()
         if i < 3 :
-            print(f"{self.name} forgot of your presence and does nothing.")
+            rprint(f"{self.name} forgot of your presence and does nothing.")
         else :
             self.attack_target(adv)
 
-class EnyRageDog(Character) :
+class EnyRageDog(Eny) :
     definition = "A strange dog with white slobber. It can attack twice, be carefull."
     def __init__(self, name, hp, att, df):
         super().__init__(name=name, maxhp=hp, att=att+1, df=df-1)
@@ -291,5 +357,5 @@ class EnyRageDog(Character) :
         i = self.dice()
         self.attack_target(adv)
         if i > 4 :
-            print(f"{self.name} bites again !")
+            rprint(f"{self.name} bites again !")
             self.attack_target(adv)
