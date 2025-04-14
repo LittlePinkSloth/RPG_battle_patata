@@ -1,34 +1,6 @@
 import random
-from .data import GameObject
-from .items import Item
-from colorama import Fore, Style
-
-def pprint(color) :
-    def inner(txt) :
-        match color :
-            case 'RED' :
-                print(Fore.RED + Style.BRIGHT+ txt + Style.RESET_ALL)
-            case 'BLUE' :
-                print(Fore.BLUE + Style.BRIGHT + txt + Style.RESET_ALL)
-            case 'GREEN' :
-                print(Fore.GREEN + txt + Style.RESET_ALL)
-            case 'YELLOW' :
-                print(Fore.YELLOW + txt + Style.RESET_ALL)
-            case 'CYAN' :
-                print(Fore.CYAN + txt + Style.RESET_ALL)
-            case 'MAGENTA' :
-                print(Fore.MAGENTA + txt + Style.RESET_ALL)
-            case _ :
-                print(Fore.WHITE + txt + Style.RESET_ALL)
-
-    return inner
-
-rprint = pprint('RED')
-bprint = pprint('BLUE')
-nprint = pprint('GREEN')
-uprint = pprint('YELLOW')
-dprint = pprint('default')
-
+from .data import *
+from .items import Item, Wearable
 
 
 class RPGException (BaseException) :
@@ -106,22 +78,30 @@ class Player(Character) :
     def __init__(self, name, maxhp = 20, maxma = 10, att = 2, df = 2):
         super().__init__(name, maxhp =maxhp, maxma =maxma, att =att, df =df)
         self.inventory = []
+        self.equipment = []
         self.exp = 0
         self.lvl = 1
         self.luck = 0
 
 
     def lvl_up(self):
-        xp_to_lvl = self.lvl * 10
+        xp_to_lvl = 0
+        if self.lvl < 5 :
+            xp_to_lvl = self.lvl * 10
+        if self.lvl < 11 :
+            xp_to_lvl = self.lvl * 15
+        else :
+            xp_to_lvl = self.lvl * 20
+
         if self.exp >= xp_to_lvl :
             self.lvl += 1
             self.exp -= xp_to_lvl
-            self.att += (1+int(self.att/4))
-            self.df += (1+int(self.df/4))
-            self.maxhp += int(self.maxhp/4)
-            self.hp += int(self.maxhp/5)
-            self.maxma += int(self.maxma/5)
-            self.mana += int(self.maxma/5)
+            self.att += (1+int(self.lvl/6))
+            self.df += (1+int(self.lvl/6))
+            self.maxhp += (2 + int(self.lvl*1.2))
+            self.hp += (2 + int(self.lvl*1.2))
+            self.maxma += (1 + int(self.lvl*1))
+            self.mana += (1 + int(self.lvl*1))
             print(f"Congratulations, you leveled up to level : {self.lvl} ! You're stronger now (+ {int(self.maxhp / 4)} hp, + {int(self.maxma / 5)} mana, + {1 + int(self.att / 4)} attack, + {1 + int(self.df / 4)} defense).")
         else :
             print(f"You have {self.exp}/{xp_to_lvl} exp to next level.")
@@ -134,6 +114,12 @@ class Player(Character) :
         inv = ""
         for i in range(len(self.inventory)) :
             inv += f"  {i + 1} --> {self.inventory[i]}\n"
+        return inv
+
+    def get_equipment(self):
+        inv = ""
+        for i in range(len(self.equipment)) :
+            inv += f"  {i + 1} --> {self.equipment[i]}\n"
         return inv
 
     def special_attack(self, enemy):
@@ -164,16 +150,16 @@ class Player(Character) :
                     try :
                         item = self.inventory[int(choice)-1]
                         self.use_item(item)
-                        if item.__class__.__name__ == 'Wearable' : break
-                        else : del self.inventory[int(choice)-1]
+
                         break
                     except IndexError :
-                        pass
+                        continue
 
     def add_item(self, item):
         self.inventory.append(item)
 
     def use_item(self, item):
+        if isinstance(item, Wearable) : return self.equip_wearable(item)
         try :
             item.use(self)
             print(f"You use {item.name}.")
@@ -182,6 +168,36 @@ class Player(Character) :
             print(dd)
         except Exception as e :
             print(f"Sorry, something went wrong with your item : {e}")
+
+        del self.inventory[self.inventory.index(item)]
+
+    def equip_wearable(self, item):
+        if len(self.equipment) > 4 :
+            print("You can only wear 5 items at one time, please unequip something before.")
+            return self.unequip_wearable(item)
+
+        item.use(self)
+        del self.inventory[self.inventory.index(item)]
+        self.equipment.append(item)
+        print(f"You've equiped {item.name}.")
+
+    def unequip_wearable(self, item):
+        print(self.get_equipment())
+        while True:
+            choice = input("Witch item do you want to unequip ? 0 to unequip nothing.\n --> ")
+            if not choice.isdigit(): continue
+            if choice == '0':
+                break
+            try:
+                uitem = self.equipment[int(choice)]
+                uitem.use(self)
+                del self.equipment[self.equipment.index(uitem)]
+                self.inventory.append(uitem)
+                print(f"You've unequiped {uitem.name}.")
+                self.equip_wearable(item)
+                break
+            except IndexError:
+                continue
 
 
     def to_dict(self):
@@ -197,7 +213,8 @@ class Player(Character) :
             "att" : self.att,
             "df" : self.df,
             "luck" : self.luck,
-            "inventory": [item.to_dict() for item in self.inventory]
+            "inventory": [item.to_dict() for item in self.inventory],
+            "equipment" : [item.to_dict() for item in self.equipment]
         }
 
     @staticmethod
@@ -222,6 +239,7 @@ class Player(Character) :
         char.df = data["df"]
         char.exp = data["exp"]
         char.inventory = [Item.from_dict(item_data) for item_data in data["inventory"]]
+        char.equipment = [Item.from_dict(item_data) for item_data in data["equipment"]]
         return char
 
 class Baker(Player) :

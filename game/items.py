@@ -49,8 +49,8 @@ class Eatable(Item) :
 
     def use(self, ply):
         if self.attribut == 'adaptive' :
-            ply.hp += (self.hp * int(ply.maxhp * 0.3))
-            ply.mana += (self.mana * int(ply.maxma * 0.3))
+            ply.hp += int(ply.maxhp * 0.3)
+            ply.mana += int(ply.maxma * 0.3)
         else :
             ply.hp += self.hp
             ply.mana += self.mana
@@ -62,7 +62,7 @@ class Eatable(Item) :
 class Wearable(Item) :
     def __init__(self, name, hp=0, mana=0, att=0, df=0):
         super().__init__(name, hp=hp, mana=mana, att=att, df=df)
-        self.attribut = False
+        self.attribut = False #if true, item Worn
 
     def __str__(self):
         return super().__str__() + f" {"Worn" if self.attribut else "Not worn"}."

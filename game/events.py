@@ -2,9 +2,9 @@ import msvcrt, os, json
 from .characters import *
 from .items import *
 from genericpath import exists
+from .data import *
 
-
-def save_game(player, filename="save/savegame.json"):
+def save_game(player : Player, filename="save/savegame.json") -> bool :
     try :
         with open(filename, "w") as f:
             json.dump(player.to_dict(), f, indent=4)
@@ -45,6 +45,7 @@ def load_game(filename="savegame.json"):
 
 def display_stats(ply, adv) :
     nbchar = len(adv.__str__()) if len(adv.__str__()) > len(ply.__str__()) else len(ply.__str__())
+    boss = 'Boss' in adv.name or 'Elite' in adv.name
 
     up = " ." + (4+nbchar)*"_" + "."
     sply = "|  " + ply.__str__() + (nbchar - len(ply.__str__()) + 2)*" " + "|"
@@ -53,15 +54,14 @@ def display_stats(ply, adv) :
     #print(up,sply,sadv,bot)
     print(up)
     bprint(sply)
-    rprint(sadv)
+    if boss : vprint(sadv)
+    else : rprint(sadv)
     print(bot)
 
 def name_gen() :
-    firstname = ['Rex', 'Gertrude', 'Ferdinand', 'Loan', 'Yseult', 'Rudolf', 'Vlad', 'Robert']
-    adj = ['Little', 'Bloody', 'Rude', 'Bad', 'Kind', 'Clever', 'Big', 'Asshole', 'Lost', 'Crazy', 'Sleepy', 'King','Lazy']
-    f = random.randint(0, len(firstname)-1)
-    a = random.randint(0, len(adj)-1)
-    return adj[a] + ' ' + firstname[f]
+    f = random.randint(0, len(char_names)-1)
+    a = random.randint(0, len(char_adjectives)-1)
+    return char_adjectives[a] + ' ' + char_names[f]
 
 def enemy_generator(ply) :
     eny_list = ['dog', 'oldman']
@@ -150,43 +150,42 @@ def clear_console() :
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def enemy_encounter(eny) :
-    story = ["After several meters in the dungeon, you meet ","You open a door and then... ", "You smell something strange. It's ", "You hear something behind you. You just have time to pivot to see "]
-    num = random.randint(0, len(story)-1)
-    rprint(f"{story[num]}{eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !")
+    num = random.randint(0, len(meeting)-1)
+    if 'Boss' in eny.name or 'Elite' in eny.name :
+        display_big_message("A BOSS APPROACHES!", Fore.MAGENTA)
+        wait_key()
+
+    rprint(f"{meeting[num]} \nIt's {eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !")
     wait_key()
     clear_console()
 
 def item_generator(ply) :
     item_type = ply.dice()
-    hp = 4 + ply.lvl*2
-    mana = 2 + int(ply.lvl*1.5)
-    att = int(ply.lvl*1.5)
-    df = int(ply.lvl*1.5)
+    hp = random.randint(0,(4 + int(ply.lvl*1.2)))
+    mana = random.randint(0,(2 + int(ply.lvl*1.2)))
+    att = random.randint(0,(int(ply.lvl*1.1)))
+    df = random.randint(0,(int(ply.lvl*1.1)))
     if item_type < 6 :
         match item_type :
             case 1 :
                 return Eatable('Health potion', hp = hp)
             case 2 :
-                return Eatable('Adaptive Health potion', attribut ='adaptive', hp = 1)
+                return Eatable('Adaptive Health potion', attribut ='adaptive')
             case 3 :
                 return Eatable('Mana potion', mana=mana)
             case 4 :
-                return Eatable('Adaptive Mana potion', attribut='adaptive', mana=1)
+                return Eatable('Adaptive Mana potion', attribut='adaptive')
             case 5 :
                 return Eatable('Bread and cheese', hp = hp, mana = mana)
     else :
-        adj = ['Thin','Black', 'Little', 'Strange','Old','Uggly','Heavy']
-        obj = ['Hat','Stick','Cloak','Pants','Stone','Crown']
-        nba = random.randint(0, len(adj)-1)
-        nbo = random.randint(0, len(obj)-1)
-        name = adj[nba] + ' ' + obj[nbo]
-        return Wearable(name, random.randint(0,1)*hp, random.randint(0,1)*mana, random.randint(0,1)*att, random.randint(0,1)*df)
+        nba = random.randint(0, len(item_adjectives)-1)
+        nbo = random.randint(0, len(equipable_items)-1)
+        name = item_adjectives[nba] + ' ' + equipable_items[nbo]
+        return Wearable(name, hp, mana, att, df)
 
 def chest(ply) :
-    story = ["Your left foot hit something... It's a chest !", "You open a door. The room is empty, but a big chest is in the middle. ",
-             "You smell something strange. It's from an old chest. ", "You find a little bright box. It's not locked. "]
-    ns = random.randint(0, len(story)-1)
-    print(story[ns])
+    ns = random.randint(0, len(chest_discovery)-1)
+    print(chest_discovery[ns])
     nprint("You can let it alone (1), or open it (2).")
     op = input("--> ")
     while op not in ['1', '2'] :
@@ -211,7 +210,8 @@ def chest(ply) :
         ply.add_item(it1)
 
 def fire_camp(ply) :
-    print("You just arrived to a peacefull place in this horrible dungeon. You can get some rest and be healed by half of your total hp.")
+    fire = random.randint(0, len(safe_room)-1)
+    print(safe_room[fire])
     nprint("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n3 : I prefer to save the game !")
     heal = input("--> ")
     while heal not in ['1', '2', '3'] :

@@ -13,7 +13,7 @@ def game_loop(player):
             except DeadCharacter as dead:
                 print(dead)
                 if enemy_.name in str(dead):
-                    player.gain_xp(enemy_.maxhp)
+                    player.gain_xp(int(enemy_.maxhp/1.5))
                     wait_key()
                     clear_console()
                 break
