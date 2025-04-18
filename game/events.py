@@ -4,6 +4,19 @@ from .items import *
 from genericpath import exists
 from .data import *
 
+ENEMY_STRH_TABLE = [
+    {"strengh": 'normal', "weight": 75, "min_level": 1, "message": None},
+    {"strengh": 'elite', "weight": 15, "min_level": 2,
+     "message": "An elite warrior stands in your way!"},
+    {"strengh": 'boss', "weight": 10, "min_level": 3,
+     "message": "⚠️ A terrifying boss emerges from the shadows..."}
+]
+
+ENEMY_TABLE = [
+    {'class': EnyOldMan, "weight": 10},
+    {'class': EnyRageDog, "weight": 10}
+]
+
 def save_game(player : Player, filename="save/savegame.json") -> bool :
     try :
         with open(filename, "w") as f:
@@ -51,52 +64,28 @@ def display_stats(ply, adv) :
     sply = "|  " + ply.__str__() + (nbchar - len(ply.__str__()) + 2)*" " + "|"
     sadv = "|  " + adv.__str__() + (nbchar - len(adv.__str__()) + 2)*" " + "|"
     bot = "|" + (5+nbchar-1)*"_" + "|"
-    #print(up,sply,sadv,bot)
+
     print(up)
     bprint(sply)
-    if boss : vprint(sadv)
-    else : rprint(sadv)
+    vprint(sadv) if boss else rprint(sadv)
     print(bot)
 
-def name_gen() :
-    f = random.randint(0, len(char_names)-1)
-    a = random.randint(0, len(char_adjectives)-1)
-    return char_adjectives[a] + ' ' + char_names[f]
-
 def enemy_generator(ply) :
-    eny_list = ['dog', 'oldman']
-    elite = True if (Eny.nb_eny % 5 ==0 and Eny.nb_eny %2 !=0) else False #elite enemy when nb_eni ends by 5 only
-    boss = True if (Eny.nb_eny %10 ==0 and Eny.nb_eny != 0) else False #boss enemy every 10 monsters
-    choice = random.randint(0, len(eny_list)-1)
-    try :
-        eny = eny_list[choice]
-    except IndexError :
-        eny = '0'
-    hp = int(random.randint(0,5)+ ply.lvl * 7)
-    att = int(random.randint(0, 1)+ ply.lvl * 1.5)
-    df = int(random.randint(0,1) + ply.lvl * 1.5)
-    name = name_gen()
-    if elite :
-        hp += int(hp*0.5)
-        att += int(att*0.5)
-        df += int(df*0.5)
-        name += ' Elite'
-    elif boss :
-        hp *=2
-        att*=2
-        df*=2
-        name = 'Boss ' + name
+    hp = int(random.randint(0, 5) + ply.lvl * 7)
+    att = int(random.randint(0, 1) + ply.lvl * 1.5)
+    df = int(random.randint(0, 1) + ply.lvl * 1.5)
 
-    eny_gen = None
-    match eny :
-        case 'dog' :
-            eny_gen = EnyRageDog(name, hp = hp, att = att, df = df)
-        case 'oldman' :
-            eny_gen = EnyOldMan(name, hp = hp, att = att, df = df)
-        case '0' :
-            eny_gen = EnyRageDog('Weakest Mouse', hp = 1, att = 1, df = 1)
+    available_strh = [entry for entry in ENEMY_STRH_TABLE if ply.lvl >= entry["min_level"]]
+    chosen_strh = random.choices(available_strh, weights=[e["weight"] for e in available_strh])[0]
 
-    return eny_gen
+    chosen_class = random.choices(ENEMY_TABLE, weights=[e["weight"] for e in ENEMY_TABLE])[0]
+
+    if chosen_strh["message"]:
+        display_big_message(chosen_strh["message"], Fore.MAGENTA)
+        wait_key()
+
+    return chosen_class["class"](hp, att, df, chosen_strh["strengh"])
+
 
 def openning() :
     print("Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?")
@@ -108,11 +97,23 @@ def openning() :
     if rep == '2' :
         return chose_player()
     else :
-        print("To load a game, the game file need to be a '.json'. You need to write exactly were this file is (the full path to it, including the file name and the .json extension), otherwise, it will bug and you'll juste start a new game.")
-        file = input("--> ")
+        #print("To load a game, the game file need to be a '.json'. You need to write exactly were this file is (the full path to it, including the file name and the .json extension), otherwise, it will bug and you'll juste start a new game.")
+        print("Here are the saved games available. Please chose one to load.")
+        choice = ''
+        list_file = os.listdir('save')
+        if len(list_file) == 0 :
+            print("No game saved. You'll start a new one.")
+            return chose_player()
 
+        for i, fl in enumerate(list_file) :
+            print(f"{i+1} : {fl}")
+            choice = input("--> ")
+            while choice not in [str(x+1) for x in range(len(list_file))] :
+                choice = input("--> ")
         try :
-            file = file.replace('"','')
+
+            file = 'save/' + list_file[int(choice) - 1]
+            #file = file.replace('"','')
             ply = load_game(file)
             print("Character successfully loaded. Have fun :).")
             return ply
@@ -151,20 +152,48 @@ def clear_console() :
 
 def enemy_encounter(eny) :
     num = random.randint(0, len(meeting)-1)
-    if 'Boss' in eny.name or 'Elite' in eny.name :
-        display_big_message("A BOSS APPROACHES!", Fore.MAGENTA)
-        wait_key()
-
     rprint(f"{meeting[num]} \nIt's {eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !")
     wait_key()
     clear_console()
 
 def item_generator(ply) :
     item_type = ply.dice()
+    hp = random.randint(0, (4 + int(ply.lvl * 1.2)))
+    mana = random.randint(0, (2 + int(ply.lvl * 1.2)))
+    att = random.randint(0, (int(ply.lvl * 1.1)))
+    df = random.randint(0, (int(ply.lvl * 1.1)))
+
+    EATABLE_ITEM_TABLE = [
+        {'item': Eatable('Health potion', hp=hp), 'weight': 1},
+        {'item': Eatable('Adaptive Health potion', attribut='adaptive'), 'weight': 1},
+        {'item': Eatable('Mana potion', mana=mana), 'weight': 1},
+        {'item': Eatable('Adaptive Mana potion', attribut='adaptive'), 'weight': 1},
+        {'item': Eatable('Bread and cheese', hp=hp, mana=mana), 'weight': 1}
+    ]
+
+    STATUS_ITEM_TABLE = [
+        {'name': it['item'].capitalize(), 'weight': it['weight']} for it in STATUS_TABLE
+    ]
+
+    if item_type == 1 :
+        chosen = random.choices(STATUS_ITEM_TABLE, weights=[e["weight"] for e in STATUS_ITEM_TABLE])[0]
+        return AntiStatus(chosen['name'])
+    elif item_type < 6 :
+        chosen = random.choices(EATABLE_ITEM_TABLE, weights=[e["weight"] for e in EATABLE_ITEM_TABLE])[0]
+        return chosen['item']
+    else :
+        nba = random.randint(0, len(item_adjectives) - 1)
+        nbo = random.randint(0, len(equipable_items) - 1)
+        name = item_adjectives[nba] + ' ' + equipable_items[nbo]
+        return Wearable(name, hp, mana, att, df)
+
+def item_generator_old(ply) :
+    item_type = ply.dice()
     hp = random.randint(0,(4 + int(ply.lvl*1.2)))
     mana = random.randint(0,(2 + int(ply.lvl*1.2)))
     att = random.randint(0,(int(ply.lvl*1.1)))
     df = random.randint(0,(int(ply.lvl*1.1)))
+
     if item_type < 6 :
         match item_type :
             case 1 :
@@ -212,9 +241,9 @@ def chest(ply) :
 def fire_camp(ply) :
     fire = random.randint(0, len(safe_room)-1)
     print(safe_room[fire])
-    nprint("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n3 : I prefer to save the game !")
+    nprint("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n3 : I prefer to save the game !\n4 : I'd like to check my inventory.")
     heal = input("--> ")
-    while heal not in ['1', '2', '3'] :
+    while heal not in ['1', '2', '3', '4'] :
         heal = input("--> ")
 
     match heal :
@@ -235,21 +264,36 @@ def fire_camp(ply) :
                 if ok : print("Game successfully saved. You can continue !")
             except Exception as e :
                 print(f"Sorry smt went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
+        case '4' :
+            print(ply.get_inventory())
+            while True:
+                choice = input("Witch item to use ? 0 to use nothing.\n --> ")
+                if not choice.isdigit(): continue
+                if choice == '0':
+                    break
+                try:
+                    item = ply.inventory[int(choice) - 1]
+                    ply.use_item(item)
+                    break
+                except IndexError:
+                    continue
         case _ :
             return "It seems something went wrong, so you just continue your adventure in the dungeon."
 
 
+EVENT_TABLE = [
+    {'event' : chest, 'weight' : 10},
+    {'event' : fire_camp, 'weight' : 10},
+    {'event' : enemy_generator, 'weight' : 40}
+]
+
 def event_generator(ply) :
-    event = random.randint(1,5)
-    if event == 4 :
-        chest(ply)
-        wait_key()
-        return False
-    elif event == 5 :
-        fire_camp(ply)
-        wait_key()
-        return False
-    else :
-        eny = enemy_generator(ply)
+    event = random.choices(EVENT_TABLE, weights=[e["weight"] for e in EVENT_TABLE])[0]
+
+    eny = event['event'](ply)
+    if eny :
         enemy_encounter(eny)
         return eny
+    else :
+        wait_key()
+        return False

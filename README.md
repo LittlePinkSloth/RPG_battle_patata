@@ -12,13 +12,14 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 
 - Choix de personnages jouables (avec classes différentes)
 - Système de combat tour par tour
-- Génération aléatoire d'événements et d'ennemis
-- Gain d'expérience
+- Génération aléatoire d'événements et d'ennemis via des tables de rencontre
+- Gain d'expérience et de niveaux
 - Statistiques affichées à chaque tour
 - Console clear et pause pour une meilleure expérience utilisateur
 - Sauvegarde et chargement de personnage
 - Texte en couleur pour meilleur confort de jeu
 - Ajout de monstres "Elite" et "Boss" pour toujours plus de challenge !
+- Ajout d'items suppresseurs de malus
 
 ## 🚀 Lancer le jeu
 
@@ -48,6 +49,15 @@ python main.py
 
 Dépendance externe :
 - `colorama`
+
+## What to expect in next updates ?
+- Malus (poison, aveuglement, brûlure...)
+- Endroits magiques
+- Buffs
+- Nouveaux ennemis
+- Nouvelles classes de personnage
+- Possibilité de jeter ses objets
+
 
 ## 📝 Licence
 

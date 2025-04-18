@@ -6,8 +6,14 @@ def game_loop(player):
         while enemy_:
             try:
                 display_stats(player, enemy_)
-                player.myturn(enemy_)
-                enemy_.myturn(player)
+                if random.randint(0,1) :
+                    player.myturn(enemy_)
+                    enemy_.myturn(player)
+                else :
+                    enemy_.myturn(player)
+                    print()
+                    player.myturn(enemy_)
+                    enemy_.is_alive()
                 wait_key()
                 clear_console()
             except DeadCharacter as dead:

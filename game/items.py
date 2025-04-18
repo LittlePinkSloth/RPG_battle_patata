@@ -1,4 +1,4 @@
-from .data import GameObject
+from .data import GameObject, STATUS_TABLE
 
 class Item(GameObject):
     def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0):
@@ -33,10 +33,32 @@ class Item(GameObject):
             item = Wearable(data["name"], hp = data["hp"],  mana = data["mana"], att = data["att"], df = data["df"])
             item.attribut = data["attribut"]
             return item
+        elif item_type == "AntiStatus":
+            item = AntiStatus(data["name"])
+            return item
         else:
             item = Item(data["name"], hp=data["hp"], mana=data["mana"], att=data["att"], df=data["df"])
             item.attribut = data["attribut"]
             return item
+
+class AntiStatus(Item) :
+    def __init__(self, name) :
+        super().__init__(name)
+        self.attribut = self.set_attribut()
+
+    def __str__(self):
+        return f"{self.name} used to cure {self.attribut}."
+
+    def set_attribut(self):
+        for stat in STATUS_TABLE :
+            if stat['item'] == self.name.lower() : return stat['status']
+
+    def use(self, ply):
+        if ply.status == self.attribut :
+            ply.status = None
+            print(f"You're not suffering {self.attribut} anymore.")
+        else :
+            print(f"It does nothing because you aren't suffering {self.attribut}.")
 
 
 class Eatable(Item) :

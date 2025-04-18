@@ -43,6 +43,23 @@ def display_big_message(message, color=Fore.RED):
     print(f"*  {message}  *")
     print(border + Style.RESET_ALL)
 
+STATUS_TABLE = [
+    {'status': 'poison', 'item': 'antidote', 'effect' : 'hp', 'rate' : -0.05, 'weight' : 1},
+    {'status': 'stupidity', 'item': 'mind-swipper', 'effect' : 'mana', 'rate' : -0.1, 'weight' : 1},
+    {'status': 'burn', 'item': 'water', 'effect' : 'hp', 'rate' : -0.1, 'weight' : 1},
+    {'status': 'paralized', 'item': 'shaker', 'effect' : 'df', 'rate' : -0.25, 'weight' : 1},
+    {'status': 'blind', 'item': 'eyes', 'effect' : 'att', 'rate' : -0.25, 'weight' : 1},
+    {'status': 'black-cat', 'item': 'white-paint', 'effect' : 'luck', 'rate' : -0.2, 'weight' : 1},
+]
+
+BUFF_TABLE = [
+    {'buff' : 'cuckold', 'effect' : 'luck', 'rate' : 0.5, 'weight' : 1},
+{'buff' : 'love', 'effect' : 'hp', 'rate' : 0.2, 'weight' : 1},
+{'buff' : 'anger', 'effect' : 'att', 'rate' : 0.3, 'weight' : 1},
+{'buff' : 'stone', 'effect' : 'df', 'rate' : 0.5, 'weight' : 1},
+{'buff' : 'wikipedia', 'effect' : 'mana', 'rate' : 0.5, 'weight' : 1},
+]
+
 ambiance = [
     "You step into the corridor, and the echo of your footsteps seems to multiply around you.",
     "A cold breeze brushes your neck—there’s no wind, and you are very much underground.",

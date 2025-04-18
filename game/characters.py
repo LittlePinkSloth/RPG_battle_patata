@@ -29,6 +29,7 @@ class Character(GameObject) :
         self.mana = self.maxma
         self.att = att
         self.df = df
+        self.status = None
 
     def __repr__(self):
         return f"Character(name={self.name}, hp={self.hp}/{self.maxhp}, mana={self.mana}/{self.maxma}, att={self.att}, df={self.df})"
@@ -36,6 +37,9 @@ class Character(GameObject) :
     def __str__(self):
         pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.mana}/{self.maxma} mana | {self.att} ATK | {self.df} DEF"
         return pres
+
+    def set_status(self, status):
+        self.status = status
 
     def take_damage(self, dmg):
         realdmg = dmg - self.df if (dmg - self.df) >= 0 else 0
@@ -82,7 +86,14 @@ class Player(Character) :
         self.exp = 0
         self.lvl = 1
         self.luck = 0
+        self.status = None
 
+    def __str__(self):
+
+        if self.status :
+            return super().__str__() + f' | Status : {self.status}'
+        else :
+            return super().__str__()
 
     def lvl_up(self):
         xp_to_lvl = 0
@@ -98,13 +109,13 @@ class Player(Character) :
             self.exp -= xp_to_lvl
             self.att += (1+int(self.lvl/6))
             self.df += (1+int(self.lvl/6))
-            self.maxhp += (2 + int(self.lvl*1.2))
-            self.hp += (2 + int(self.lvl*1.2))
+            self.maxhp += (2 + int(self.lvl*1.1))
+            self.hp += (2 + int(self.lvl*1.1))
             self.maxma += (1 + int(self.lvl*1))
             self.mana += (1 + int(self.lvl*1))
             print(f"Congratulations, you leveled up to level : {self.lvl} ! You're stronger now (+ {int(self.maxhp / 4)} hp, + {int(self.maxma / 5)} mana, + {1 + int(self.att / 4)} attack, + {1 + int(self.df / 4)} defense).")
         else :
-            print(f"You have {self.exp}/{xp_to_lvl} exp to next level.")
+            print(f"You have {self.exp}/{xp_to_lvl} exp to level {self.lvl + 1}.")
 
     def gain_xp(self, xp):
         self.exp += xp
@@ -128,10 +139,9 @@ class Player(Character) :
 
     def myturn(self, adv):
         self.is_alive()
-        goodchoices = ['1','2','3']
         text_input = "." + 3*"_" + "YOUR TURN" + 3*"_" + ".\n" + "|   1 - Attack\n" + "|   2 - Special capacity\n" + "|   3 - Use an item from your inventory.\n" + "|   --> "
         todo = input(text_input)
-        while todo not in goodchoices :
+        while todo not in ['1','2','3'] :
             todo = input("Please chose 1, 2 or 3. \n--> ")
         match todo :
             case '1' :
@@ -161,8 +171,8 @@ class Player(Character) :
     def use_item(self, item):
         if isinstance(item, Wearable) : return self.equip_wearable(item)
         try :
-            item.use(self)
             print(f"You use {item.name}.")
+            item.use(self)
             self.is_alive()
         except DeadCharacter as dd :
             print(dd)
@@ -189,7 +199,7 @@ class Player(Character) :
             if choice == '0':
                 break
             try:
-                uitem = self.equipment[int(choice)]
+                uitem = self.equipment[int(choice)-1]
                 uitem.use(self)
                 del self.equipment[self.equipment.index(uitem)]
                 self.inventory.append(uitem)
@@ -214,7 +224,8 @@ class Player(Character) :
             "df" : self.df,
             "luck" : self.luck,
             "inventory": [item.to_dict() for item in self.inventory],
-            "equipment" : [item.to_dict() for item in self.equipment]
+            "equipment" : [item.to_dict() for item in self.equipment],
+            "status" : self.status
         }
 
     @staticmethod
@@ -240,6 +251,7 @@ class Player(Character) :
         char.exp = data["exp"]
         char.inventory = [Item.from_dict(item_data) for item_data in data["inventory"]]
         char.equipment = [Item.from_dict(item_data) for item_data in data["equipment"]]
+        char.status = data["status"]
         return char
 
 class Baker(Player) :
@@ -339,19 +351,43 @@ class Gambler(Player) :
 
 class Eny(Character) :
     nb_eny = 0
-    def __init__(self, name, maxhp,att, df):
-        super().__init__(name=name, maxhp=maxhp, att=att, df=df)
+    def __init__(self, hp, att, df, strengh):
+        self.name = self.name_gen()
+        if strengh == 'elite' :
+            hp += int(hp * 0.5)
+            att += int(att * 0.5)
+            df += int(df * 0.5)
+            self.name += ' Elite'
+        elif strengh == 'boss':
+            hp *= 2
+            att *= 2
+            df *= 2
+            self.name = 'Boss ' + self.name
+        super().__init__(name=self.name, maxhp=hp, att=att, df=df)
         Eny.nb_eny +=1
+        self.strengh = strengh
+
+    def __str__(self):
+        pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.att} ATK | {self.df} DEF | Strengh : {self.strengh} "
+        return pres
+
+    @staticmethod
+    def name_gen():
+        f = random.randint(0, len(char_names) - 1)
+        a = random.randint(0, len(char_adjectives) - 1)
+        return char_adjectives[a] + ' ' + char_names[f]
 
 
 class EnyOldMan(Eny) :
+    common_name = 'Old man'
     definition = "An old man bothered by your presence. He sometimes forgot things."
-    def __init__(self, name, hp, att, df):
-        super().__init__(name = name, maxhp = hp-2, att = att, df = df*0)
+    def __init__(self, hp, att, df, strengh='normal'):
+        super().__init__(hp = hp-2, att = att, df = df*0, strengh=strengh)
 
     def __str__(self):
-        pres = " | Type : Old man"
-        return super().__str__() + pres
+        pres = super().__str__() + f"| Type : {self.common_name}"
+        return pres
+
 
     def myturn(self, adv):
         self.is_alive()
@@ -362,13 +398,14 @@ class EnyOldMan(Eny) :
             self.attack_target(adv)
 
 class EnyRageDog(Eny) :
+    common_name = 'Rage dog'
     definition = "A strange dog with white slobber. It can attack twice, be carefull."
-    def __init__(self, name, hp, att, df):
-        super().__init__(name=name, maxhp=hp, att=att+1, df=df-1)
+    def __init__(self, hp, att, df, strengh='normal'):
+        super().__init__(hp=hp, att=att+1, df=df-1, strengh=strengh)
 
     def __str__(self):
-        pres = " | Type : Agressive dog"
-        return super().__str__() + pres
+        pres = super().__str__() + f"| Type : {self.common_name}"
+        return pres
 
     def myturn(self, adv):
         self.is_alive()
