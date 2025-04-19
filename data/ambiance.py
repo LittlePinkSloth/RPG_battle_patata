@@ -1,65 +1,3 @@
-from colorama import Fore, Style
-
-class GameObject :
-    def __init__(self, name):
-        self.name = name
-
-def pprint(color : str, end='\n') :
-    """Closure that return a function to color the printed strings.
-
-    :param color: can be RED GREEN BLUE YELLOW CYAN MAGENTA
-    :param end: same as the print() end argument
-    :return: a function that takes in arg the string you want to print in color
-    """
-    def inner(txt) :
-        match color :
-            case 'RED' :
-                print(Fore.RED + Style.BRIGHT+ txt + Style.RESET_ALL, end = end)
-            case 'BLUE' :
-                print(Fore.BLUE + Style.BRIGHT + txt + Style.RESET_ALL, end = end)
-            case 'GREEN' :
-                print(Fore.GREEN + txt + Style.RESET_ALL, end = end)
-            case 'YELLOW' :
-                print(Fore.YELLOW + txt + Style.RESET_ALL, end = end)
-            case 'CYAN' :
-                print(Fore.CYAN + txt + Style.RESET_ALL, end = end)
-            case 'MAGENTA' :
-                print(Fore.MAGENTA + txt + Style.RESET_ALL, end = end)
-            case _ :
-                print(Fore.WHITE + txt + Style.RESET_ALL, end = end)
-
-    return inner
-
-rprint = pprint('RED')
-bprint = pprint('BLUE')
-nprint = pprint('GREEN')
-uprint = pprint('YELLOW')
-vprint = pprint('MAGENTA')
-dprint = pprint('default')
-
-def display_big_message(message, color=Fore.RED):
-    border = "*" * (len(message) + 6)
-    print(color + border)
-    print(f"*  {message}  *")
-    print(border + Style.RESET_ALL)
-
-STATUS_TABLE = [
-    {'status': 'poison', 'item': 'antidote', 'effect' : 'hp', 'rate' : -0.05, 'weight' : 1},
-    {'status': 'stupidity', 'item': 'mind-swipper', 'effect' : 'mana', 'rate' : -0.1, 'weight' : 1},
-    {'status': 'burn', 'item': 'water', 'effect' : 'hp', 'rate' : -0.1, 'weight' : 1},
-    {'status': 'paralized', 'item': 'shaker', 'effect' : 'df', 'rate' : -0.25, 'weight' : 1},
-    {'status': 'blind', 'item': 'eyes', 'effect' : 'att', 'rate' : -0.25, 'weight' : 1},
-    {'status': 'black-cat', 'item': 'white-paint', 'effect' : 'luck', 'rate' : -0.2, 'weight' : 1},
-]
-
-BUFF_TABLE = [
-    {'buff' : 'cuckold', 'effect' : 'luck', 'rate' : 0.5, 'weight' : 1},
-{'buff' : 'love', 'effect' : 'hp', 'rate' : 0.2, 'weight' : 1},
-{'buff' : 'anger', 'effect' : 'att', 'rate' : 0.3, 'weight' : 1},
-{'buff' : 'stone', 'effect' : 'df', 'rate' : 0.5, 'weight' : 1},
-{'buff' : 'wikipedia', 'effect' : 'mana', 'rate' : 0.5, 'weight' : 1},
-]
-
 ambiance = [
     "You step into the corridor, and the echo of your footsteps seems to multiply around you.",
     "A cold breeze brushes your neck—there’s no wind, and you are very much underground.",
@@ -193,3 +131,5 @@ char_adjectives = [
 equipable_items = ['Helmet', 'Cloak', 'Bracelet', 'Gloves', 'Boots', 'Goggles', 'Shoulder pads', 'Amulet', 'Ring', 'Belt', 'Scarf', 'Monocle', 'Tunic', 'Leggings', 'Pauldrons', 'Hood', 'Mask', 'Cape', 'Corset', 'Bracers', 'Greaves', 'Gauntlet', 'Necklace', 'Slippers', 'Backpack', 'Vest', 'Tiara', 'Earrings', 'Shawl', 'Bandana']
 
 item_adjectives = ['Moldy', 'Enchanted', 'Fluffy', 'Cursed', 'Glittering', 'Damp', 'Legendary', 'Sticky', 'Shimmering', 'Torn', 'Screaming', 'Rusted', 'Celestial', 'Feathered', 'Glowing', 'Soggy', 'Vampiric', 'Itchy', 'Regal', 'Prehistoric', 'Invisible', 'Paper-thin', 'Obsidian', 'Squeaky', 'Ancient', 'Smelly', 'Lava-forged', 'Haunted', 'Cracked', 'Whispering']
+
+eny_random_type = ['Weak gobelin', 'Spider', 'Toothless cat', 'Starving dog', 'Frog', 'Boneless skeleton']

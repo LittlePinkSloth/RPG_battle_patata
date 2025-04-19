@@ -1,0 +1,37 @@
+{
+  "strh" : [
+  {
+    "strengh": "normal",
+    "weight": 75,
+    "min_level": 1,
+    "message": 0
+  },
+  {
+    "strengh": "elite",
+    "weight": 15,
+    "min_level": 2,
+    "message": "An elite warrior stands in your way!"
+  },
+  {
+    "strengh": "boss",
+    "weight": 10,
+    "min_level": 3,
+    "message": "⚠️ A terrifying boss emerges from the shadows..."
+  }
+],
+
+"enemies" : [
+  {
+    "class": "EnyOldMan",
+    "weight": 10
+  },
+  {
+    "class": "EnyRageDog",
+    "weight": 10
+  },
+  {
+    "class": "Eny",
+    "weight": 10
+  }
+]
+}

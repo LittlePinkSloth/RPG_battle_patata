@@ -1,4 +1,4 @@
-from game.events import *
+from .game.events import *
 
 def game_loop(player):
     while player.is_alive():
@@ -24,7 +24,7 @@ def game_loop(player):
                     clear_console()
                 break
 
-def main():
+def start_game():
     clear_console()
     player = openning()
     print(f"Welcome to our dungeon, {player.name}, proud {player.__class__.__name__}!")
@@ -38,5 +38,3 @@ def main():
 
     print("This is the end of the game. We hope you had fun.")
 
-if __name__ == "__main__":
-    main()

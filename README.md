@@ -6,58 +6,84 @@ Bienvenue dans **RPG Battle Patata**, un mini-jeu de combat RPG en ligne de comm
 
 ## 🎮 Description
 
-Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de dangers. Combattez des ennemis générés aléatoirement, gagnez de l'expérience, et survivez le plus longtemps possible !
+Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de dangers. Combattez des ennemis générés aléatoirement, gérez vos objets et vos statistiques, et survivez le plus longtemps possible !
 
 ## ⚔️ Fonctionnalités
 
-- Choix de personnages jouables (avec classes différentes)
+- Choix de personnages jouables avec des classes différentes
 - Système de combat tour par tour
-- Génération aléatoire d'événements et d'ennemis via des tables de rencontre
-- Gain d'expérience et de niveaux
-- Statistiques affichées à chaque tour
-- Console clear et pause pour une meilleure expérience utilisateur
-- Sauvegarde et chargement de personnage
-- Texte en couleur pour meilleur confort de jeu
-- Ajout de monstres "Elite" et "Boss" pour toujours plus de challenge !
-- Ajout d'items suppresseurs de malus
+- Génération aléatoire d'événements, ennemis et objets via des tables JSON
+- Apparition de Boss et d'Elites
+- Effets de statut (brûlure, poison...) et objets pour les soigner
+- Système d'inventaire et d’équipement
+- Sauvegarde et chargement de partie
+- Console colorée (via `colorama`) et clear/pause pour une meilleure lisibilité
+- Structure de projet modulaire pour une meilleure lisibilité et évolutivité
 
 ## 🚀 Lancer le jeu
+### Prérequis 
+Assurez-vous d’utiliser **Python 3.10+**.
 
-Assurez-vous d'utiliser **Python 3.10+**.  
-Clonez le dépôt, installez les dépendances, puis lancez simplement le fichier `main.py` :
-
+### Installation
+Clonez le dépôt :
+```bash
+git clone https://github.com/LittlePinkSloth/RPG_battle_patata.git
+cd RPG_battle_patata
+```
+Installez les dépendances :
 ```bash
 pip install -r requirements.txt
-python main.py
 ```
 
-## 📂 Organisation des fichiers
+### Exécution
+Depuis le dossier contenant le projet (donc avant le dossier RPG_battle_patata) :
+```bash
+python -m RPG_battle_patata
+```
 
-- `main.py` : point d’entrée du jeu
-- `game/` : dossier contenant les modules suivants :
-  - `characters.py` : classes des personnages
-  - `items.py` : objets utilisables
-  - `events.py` : génération d'événements et logique de combat
-  - `data.py` : données statiques
+## 📂 Structure du projet
+
+```
+RPG_battle_patata/
+├── __main__.py          # Lancement du jeu via `python -m RPG_battle_patata`
+├── main.py              # Entrée principale (appelée par __main__)
+├── requirements.txt
+├── README.md
+├── LICENSE
+│
+├── data/                    # Données statiques JSON et ambiance
+│   ├── ENEMY_TABLE.json
+│   ├── EVENT_TABLE.json
+│   ├── ITEM_TABLE.json
+│   ├── STATUS_TABLE.json
+│   └── ambiance.py          
+│
+├── entities/                # Définition des entités du jeu
+│   ├── characters.py        # Joueur, classes...
+│   ├── eny.py               # Ennemis
+│   └── items.py             # Objets, équipements, effets
+│
+├── game/                    # Logique du jeu
+│   ├── events.py            # Gestion des événements et combats
+│   └── utils.py             # Outils divers (clear screen, couleurs, etc)
+│
+├── save/                    # Dossier pour les sauvegardes
+```
 
 ## 📦 Dépendances
 
-- `random`
-- `msvcrt`
-- `os`
-- `genericpath`
+- `random`, `os`, `msvcrt` (standard Python)
+- `colorama` (console colorée)
 
-Dépendance externe :
-- `colorama`
+Installez-les via le `requirements.txt` fourni.
 
-## What to expect in next updates ?
-- Malus (poison, aveuglement, brûlure...)
-- Endroits magiques
-- Buffs
-- Nouveaux ennemis
-- Nouvelles classes de personnage
-- Possibilité de jeter ses objets
+## 🔮 À venir
 
+- Nouvelles classes de personnages
+- Buffs et malus variés (aveuglement, confusion...)
+- Lieux spéciaux (magiques ou piégés)
+- Possibilité de jeter ou trier les objets
+- Système de quêtes aléatoires
 
 ## 📝 Licence
 

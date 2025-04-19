@@ -1,0 +1,7 @@
+{
+  "events" : [
+    {"event" : "chest", "weight" : 10},
+    {"event" : "fire_camp", "weight" : 10},
+    {"event" : "enemy_generator", "weight" : 40}
+]
+}

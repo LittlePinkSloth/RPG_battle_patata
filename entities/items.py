@@ -1,17 +1,24 @@
-from .data import GameObject, STATUS_TABLE
+from ..game.utils import GameObject, file_paths
+
+class ItemNotFound(ValueError) :
+    def __str__(self, item = ''):
+        return f"You do not have this item ({item}) in your inventory."
 
 class Item(GameObject):
-    def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0):
+    def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0, **kwargs):
         super().__init__(item)
         self.hp = hp
         self.mana = mana
         self.att = att
         self.df = df
-        self.attribut = None
+        self.attribut = None #attribut is polymorphe and highly depends of item's class
 
     def __str__(self):
         pres = f"{self.name} : {self.hp} hp / {self.mana} mana / {self.att} attack / {self.df} defense."
         return pres
+
+    def __repr__(self):
+        return f"{self.name} / class : {self.__class__.__name__} / attribut : {self.attribut}"
 
     def to_dict(self):
         return {
@@ -25,24 +32,17 @@ class Item(GameObject):
         }
 
     @staticmethod
-    def from_dict(data):
+    def from_dict(data) :
         item_type = data["type"]
-        if item_type == "Eatable":
-            return Eatable(data["name"], hp = data["hp"], attribut = data["attribut"], mana = data["mana"], att = data["att"], df = data["df"])
-        elif item_type == "Wearable":
-            item = Wearable(data["name"], hp = data["hp"],  mana = data["mana"], att = data["att"], df = data["df"])
-            item.attribut = data["attribut"]
-            return item
-        elif item_type == "AntiStatus":
-            item = AntiStatus(data["name"])
-            return item
-        else:
-            item = Item(data["name"], hp=data["hp"], mana=data["mana"], att=data["att"], df=data["df"])
-            item.attribut = data["attribut"]
-            return item
+        item_class = ITEM_CLASSES[item_type]
+        if item_type not in ITEM_CLASSES:
+            raise ItemNotFound(item_type)
+        item_attributes = {k: v for k, v in data.items() if k != "type"}
+        return item_class(**item_attributes)
+
 
 class AntiStatus(Item) :
-    def __init__(self, name) :
+    def __init__(self, name, **kwargs) :
         super().__init__(name)
         self.attribut = self.set_attribut()
 
@@ -50,7 +50,9 @@ class AntiStatus(Item) :
         return f"{self.name} used to cure {self.attribut}."
 
     def set_attribut(self):
-        for stat in STATUS_TABLE :
+        from RPG_battle_patata.game.events import load_datas
+        status = load_datas(file_paths['status'])['status_table']
+        for stat in status :
             if stat['item'] == self.name.lower() : return stat['status']
 
     def use(self, ply):
@@ -62,7 +64,7 @@ class AntiStatus(Item) :
 
 
 class Eatable(Item) :
-    def __init__(self, name, attribut='normal', hp = 0, mana= 0, att = 0, df = 0):
+    def __init__(self, name, attribut='normal', hp = 0, mana= 0, att = 0, df = 0, **kwargs):
         super().__init__(name, hp = hp, mana= mana, att = att, df = df)
         self.attribut = attribut
 
@@ -82,12 +84,22 @@ class Eatable(Item) :
         if ply.mana > ply.maxma: ply.mana = ply.maxma
 
 class Wearable(Item) :
-    def __init__(self, name, hp=0, mana=0, att=0, df=0):
-        super().__init__(name, hp=hp, mana=mana, att=att, df=df)
-        self.attribut = False #if true, item Worn
+    def __init__(self, hp=0, mana=0, att=0, df=0, attribut = False, **kwargs):
+        self.name = self.name_gen()
+        super().__init__(self.name, hp=hp, mana=mana, att=att, df=df)
+        self.attribut = attribut #if true, item Worn
 
     def __str__(self):
         return super().__str__() + f" {"Worn" if self.attribut else "Not worn"}."
+
+    @staticmethod
+    def name_gen():
+        import random
+        from RPG_battle_patata.data.ambiance import item_adjectives, equipable_items
+        adj = random.randint(0, len(item_adjectives) - 1)
+        obj = random.randint(0, len(equipable_items) - 1)
+        name = item_adjectives[adj] + ' ' + equipable_items[obj]
+        return name
 
     def use(self, ply):
         if not self.attribut :
@@ -106,3 +118,12 @@ class Wearable(Item) :
             ply.mana -= self.mana
             ply.att -= self.att
             ply.df -= self.df
+
+
+ITEM_CLASSES = {
+    "Eatable": Eatable,
+    "Wearable": Wearable,
+    "AntiStatus": AntiStatus,
+    "Item" : Item
+}
+

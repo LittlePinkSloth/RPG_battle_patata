@@ -1,7 +1,6 @@
 import random
-from .data import *
-from .items import Item, Wearable
-
+from ..entities.items import Item, Wearable
+from ..game.utils import GameObject, rprint, bprint
 
 class RPGException (BaseException) :
     pass
@@ -16,19 +15,17 @@ class DeadCharacter(RPGException) :
         else :
             return f"{self.dead.name} enemy died. You won."
 
-class ItemNotFound(RPGException) :
-    def __str__(self):
-        return "You do not have this item in your inventory."
+
 
 class Character(GameObject) :
-    def __init__(self, name, maxhp = 20, maxma = 10, att = 2, df = 2):
+    def __init__(self, name, maxhp : int = 20, maxma : int = 10, att : int = 2, df : int = 2):
         super().__init__(name)
-        self.maxhp = maxhp
+        self.maxhp = int(maxhp)
         self.hp = self.maxhp
-        self.maxma = maxma
+        self.maxma = int(maxma)
         self.mana = self.maxma
-        self.att = att
-        self.df = df
+        self.att = int(att)
+        self.df = int(df)
         self.status = None
 
     def __repr__(self):
@@ -349,68 +346,3 @@ class Gambler(Player) :
             self.luck +=1
             print("You also increase your luck by 1.")
 
-class Eny(Character) :
-    nb_eny = 0
-    def __init__(self, hp, att, df, strengh):
-        self.name = self.name_gen()
-        if strengh == 'elite' :
-            hp += int(hp * 0.5)
-            att += int(att * 0.5)
-            df += int(df * 0.5)
-            self.name += ' Elite'
-        elif strengh == 'boss':
-            hp *= 2
-            att *= 2
-            df *= 2
-            self.name = 'Boss ' + self.name
-        super().__init__(name=self.name, maxhp=hp, att=att, df=df)
-        Eny.nb_eny +=1
-        self.strengh = strengh
-
-    def __str__(self):
-        pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.att} ATK | {self.df} DEF | Strengh : {self.strengh} "
-        return pres
-
-    @staticmethod
-    def name_gen():
-        f = random.randint(0, len(char_names) - 1)
-        a = random.randint(0, len(char_adjectives) - 1)
-        return char_adjectives[a] + ' ' + char_names[f]
-
-
-class EnyOldMan(Eny) :
-    common_name = 'Old man'
-    definition = "An old man bothered by your presence. He sometimes forgot things."
-    def __init__(self, hp, att, df, strengh='normal'):
-        super().__init__(hp = hp-2, att = att, df = df*0, strengh=strengh)
-
-    def __str__(self):
-        pres = super().__str__() + f"| Type : {self.common_name}"
-        return pres
-
-
-    def myturn(self, adv):
-        self.is_alive()
-        i = self.dice()
-        if i < 3 :
-            rprint(f"{self.name} forgot of your presence and does nothing.")
-        else :
-            self.attack_target(adv)
-
-class EnyRageDog(Eny) :
-    common_name = 'Rage dog'
-    definition = "A strange dog with white slobber. It can attack twice, be carefull."
-    def __init__(self, hp, att, df, strengh='normal'):
-        super().__init__(hp=hp, att=att+1, df=df-1, strengh=strengh)
-
-    def __str__(self):
-        pres = super().__str__() + f"| Type : {self.common_name}"
-        return pres
-
-    def myturn(self, adv):
-        self.is_alive()
-        i = self.dice()
-        self.attack_target(adv)
-        if i > 4 :
-            rprint(f"{self.name} bites again !")
-            self.attack_target(adv)
