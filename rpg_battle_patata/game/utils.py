@@ -3,11 +3,11 @@ import json, os, random, sys
 from ..data.ambiance import meeting
 
 file_paths = {
-    'enemies' : 'RPG_battle_patata/data/ENEMY_TABLE.json',
-'events' : 'RPG_battle_patata/data/EVENT_TABLE.json',
-'items' : 'RPG_battle_patata/data/ITEM_TABLE.json',
-'status' : 'RPG_battle_patata/data/STATUS_TABLE.json',
-'save' : 'RPG_battle_patata/save/',
+    'enemies' : 'rpg_battle_patata/data/ENEMY_TABLE.json',
+'events' : 'rpg_battle_patata/data/EVENT_TABLE.json',
+'items' : 'rpg_battle_patata/data/ITEM_TABLE.json',
+'status' : 'rpg_battle_patata/data/STATUS_TABLE.json',
+'save' : 'rpg_battle_patata/save/',
 }
 
 class GameObject :
