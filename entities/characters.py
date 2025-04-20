@@ -15,8 +15,6 @@ class DeadCharacter(RPGException) :
         else :
             return f"{self.dead.name} enemy died. You won."
 
-
-
 class Character(GameObject) :
     def __init__(self, name, maxhp : int = 20, maxma : int = 10, att : int = 2, df : int = 2):
         super().__init__(name)
@@ -96,7 +94,7 @@ class Player(Character) :
         xp_to_lvl = 0
         if self.lvl < 5 :
             xp_to_lvl = self.lvl * 10
-        if self.lvl < 11 :
+        elif self.lvl < 11 :
             xp_to_lvl = self.lvl * 15
         else :
             xp_to_lvl = self.lvl * 20
@@ -104,12 +102,12 @@ class Player(Character) :
         if self.exp >= xp_to_lvl :
             self.lvl += 1
             self.exp -= xp_to_lvl
-            self.att += (1+int(self.lvl/6))
-            self.df += (1+int(self.lvl/6))
-            self.maxhp += (2 + int(self.lvl*1.1))
-            self.hp += (2 + int(self.lvl*1.1))
-            self.maxma += (1 + int(self.lvl*1))
-            self.mana += (1 + int(self.lvl*1))
+            self.att += (1+self.lvl/6)
+            self.df += (1+self.lvl/6)
+            self.maxhp += (2 + self.lvl*1.1)
+            self.hp += (2 + self.lvl*1.1)
+            self.maxma += (1 + self.lvl*1)
+            self.mana += (1 + self.lvl*1)
             print(f"Congratulations, you leveled up to level : {self.lvl} ! You're stronger now (+ {int(self.maxhp / 4)} hp, + {int(self.maxma / 5)} mana, + {1 + int(self.att / 4)} attack, + {1 + int(self.df / 4)} defense).")
         else :
             print(f"You have {self.exp}/{xp_to_lvl} exp to level {self.lvl + 1}.")
@@ -181,14 +179,14 @@ class Player(Character) :
     def equip_wearable(self, item):
         if len(self.equipment) > 4 :
             print("You can only wear 5 items at one time, please unequip something before.")
-            return self.unequip_wearable(item)
+            return self.change_wearable(item)
 
         item.use(self)
         del self.inventory[self.inventory.index(item)]
         self.equipment.append(item)
         print(f"You've equiped {item.name}.")
 
-    def unequip_wearable(self, item):
+    def change_wearable(self, item):
         print(self.get_equipment())
         while True:
             choice = input("Witch item do you want to unequip ? 0 to unequip nothing.\n --> ")
@@ -196,15 +194,18 @@ class Player(Character) :
             if choice == '0':
                 break
             try:
-                uitem = self.equipment[int(choice)-1]
-                uitem.use(self)
-                del self.equipment[self.equipment.index(uitem)]
-                self.inventory.append(uitem)
+                uitem = self.equipment[int(choice) - 1]
+                self.unequip_wearable(uitem)
                 print(f"You've unequiped {uitem.name}.")
                 self.equip_wearable(item)
                 break
             except IndexError:
                 continue
+
+    def unequip_wearable(self, item):
+        item.use(self)
+        del self.equipment[self.equipment.index(item)]
+        self.inventory.append(item)
 
 
     def to_dict(self):

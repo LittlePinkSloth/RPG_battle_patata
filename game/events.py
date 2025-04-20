@@ -1,5 +1,4 @@
 import os.path
-from ..entities.characters import *
 from ..entities.eny import *
 from ..entities.items import *
 from genericpath import exists
@@ -24,78 +23,6 @@ def enemy_generator(ply) :
         wait_key()
 
     return eny_class(hp, att, df, eny_strh["strengh"])
-
-def openning() :
-    print("Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?")
-    nprint("1 : Load a game\n2 : Start a new one")
-    rep = input("--> ")
-    while rep not in ['1', '2'] :
-        rep = input("--> ")
-
-    if rep == '2' :
-        return chose_player()
-    else :
-        #print("To load a game, the game file need to be a '.json'. You need to write exactly were this file is (the full path to it, including the file name and the .json extension), otherwise, it will bug and you'll juste start a new game.")
-        print("Here are the saved games available. Please chose one to load.")
-        choice = ''
-        abspath = os.path.abspath(file_paths['save'])
-        try :
-            if not os.path.exists(abspath) : raise LoadingError
-        except LoadingError :
-            print("No 'save' dir in your game directory. Please create one or start a new game.")
-            exit()
-        list_file = os.listdir(abspath)
-        if len(list_file) == 0 :
-            print("No game saved. You'll start a new one.")
-            return chose_player()
-
-        for i, fl in enumerate(list_file) :
-            print(f"{i+1} : {fl}")
-            choice = input("--> ")
-            while choice not in [str(x+1) for x in range(len(list_file))] :
-                choice = input("--> ")
-        try :
-            pathfile = os.path.join(abspath, list_file[int(choice) - 1])
-            data = load_datas(pathfile)
-            if isinstance(data, bool) : raise LoadingError
-            ply = Player.from_dict(data)
-            print("Character successfully loaded. Have fun :).")
-            return ply
-        except LoadingError :
-            print("We were unable to load your file.")
-            return chose_player()
-        except Exception as e :
-            print(
-                f"Sorry something went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
-            return chose_player()
-
-
-def chose_player() :
-    nprint("What is your name ?")
-    name = input("--> ").strip()
-    while len(name) == 0 :
-        name = input("--> ").strip()
-    print(f"\nHello {name}. What kind of player are you ?\n")
-    nprint(f"  1 : {Baker.definition}\n  2 : {NarcissicPerverse.definition}\n  3 : {Gambler.definition}\n")
-    choice = input("--> ")
-    while choice not in ['1', '2', '3'] :
-        choice = input("--> ")
-
-    match choice :
-        case '1' :
-            return Baker(name)
-        case '2' :
-            return NarcissicPerverse(name)
-        case '3' :
-            return Gambler(name)
-
-
-
-def enemy_encounter(eny) :
-    num = random.randint(0, len(meeting)-1)
-    rprint(f"{meeting[num]} \nIt's {eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !")
-    wait_key()
-    clear_console()
 
 def item_generator(ply) :
     #initiliazing item stats
@@ -125,7 +52,20 @@ def item_generator(ply) :
     else :
         return Wearable(hp=hp, mana=mana, att=att, df=df)
 
+def event_generator(ply) :
+    events = load_datas(file_paths['events'])
+    event = random.choices(events['events'], weights=[e["weight"] for e in events['events']])[0]
 
+    event_correspondance = {"chest" : chest, "fire_camp" : fire_camp, "enemy_generator" : enemy_generator}
+    ev = event_correspondance[event['event']]
+
+    eny = ev(ply)
+    if eny :
+        enemy_encounter(eny)
+        return eny
+    else :
+        wait_key()
+        return False
 
 def chest(ply) :
     ns = random.randint(0, len(chest_discovery)-1)
@@ -197,17 +137,3 @@ def fire_camp(ply) :
             return "It seems something went wrong, so you just continue your adventure in the dungeon."
 
 
-def event_generator(ply) :
-    events = load_datas(file_paths['events'])
-    event = random.choices(events['events'], weights=[e["weight"] for e in events['events']])[0]
-
-    event_correspondance = {"chest" : chest, "fire_camp" : fire_camp, "enemy_generator" : enemy_generator}
-    ev = event_correspondance[event['event']]
-
-    eny = ev(ply)
-    if eny :
-        enemy_encounter(eny)
-        return eny
-    else :
-        wait_key()
-        return False

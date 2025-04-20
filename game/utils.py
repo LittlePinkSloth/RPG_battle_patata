@@ -1,5 +1,6 @@
 from colorama import Fore, Style
-import json, os, msvcrt
+import json, os, msvcrt, random
+from ..data.ambiance import meeting
 
 file_paths = {
     'enemies' : 'RPG_battle_patata/data/ENEMY_TABLE.json',
@@ -62,6 +63,12 @@ def display_stats(ply, adv) :
     bprint(sply)
     vprint(sadv) if boss else rprint(sadv)
     print(bot)
+
+def enemy_encounter(eny) :
+    num = random.randint(0, len(meeting)-1)
+    rprint(f"{meeting[num]} \nIt's {eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !")
+    wait_key()
+    clear_console()
 
 def wait_key() :
     print("--> ")
