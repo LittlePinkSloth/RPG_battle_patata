@@ -1,5 +1,5 @@
 from colorama import Fore, Style
-import json, os, msvcrt, random
+import json, os, random, sys
 from ..data.ambiance import meeting
 
 file_paths = {
@@ -70,9 +70,14 @@ def enemy_encounter(eny) :
     wait_key()
     clear_console()
 
-def wait_key() :
-    print("--> ")
-    msvcrt.getch()  # Attend n'importe quelle touche, sans besoin d'appuyer sur Entrée
+def wait_key():
+    if sys.platform == "win32":
+        print("--> ")
+        import msvcrt
+        msvcrt.getch()
+    else:
+        input("Appuyez sur Entrée pour continuer...")
+
 
 def clear_console() :
     os.system('cls' if os.name == 'nt' else 'clear')
