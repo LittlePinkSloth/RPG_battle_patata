@@ -1,6 +1,5 @@
-import unittest, sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from RPG_battle_patata.entities.characters import Player
+import unittest
+from rpg_battle_patata.entities.characters import Player
 
 def funcname(name) :
     return print(f"--> Current test : {name}")

@@ -50,7 +50,7 @@ class AntiStatus(Item) :
         return f"{self.name} used to cure {self.attribut}."
 
     def set_attribut(self):
-        from RPG_battle_patata.game.events import load_datas
+        from rpg_battle_patata.game.events import load_datas
         status = load_datas(file_paths['status'])['status_table']
         for stat in status :
             if stat['item'] == self.name.lower() : return stat['status']
@@ -95,7 +95,7 @@ class Wearable(Item) :
     @staticmethod
     def name_gen():
         import random
-        from RPG_battle_patata.data.ambiance import item_adjectives, equipable_items
+        from rpg_battle_patata.data.ambiance import item_adjectives, equipable_items
         adj = random.randint(0, len(item_adjectives) - 1)
         obj = random.randint(0, len(equipable_items) - 1)
         name = item_adjectives[adj] + ' ' + equipable_items[obj]

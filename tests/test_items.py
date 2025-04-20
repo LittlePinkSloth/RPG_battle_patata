@@ -1,6 +1,5 @@
-import unittest, sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from RPG_battle_patata.entities.items import Eatable, Wearable, AntiStatus
+import unittest
+from rpg_battle_patata.entities.items import Eatable, Wearable, AntiStatus
 from test_characters import funcname
 
 class TestItems(unittest.TestCase):

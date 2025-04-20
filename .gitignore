@@ -4,3 +4,4 @@ __pycache__/
 *.pyd
 .env
 ignore*
+rpg_battle_patata.egg-info/

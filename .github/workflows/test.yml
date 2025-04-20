@@ -17,13 +17,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # tu peux mettre celle que tu utilises
+          python-version: '3.10'
+
+      - name: Install local package
+        run: |
+          pip install -e .
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt || true  # ← facultatif si tu n’as pas de requirements
+          pip install -r requirements.txt || true
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
-          python -m unittest discover -s tests
+          PYTHONPATH=. python -m unittest discover -s tests
