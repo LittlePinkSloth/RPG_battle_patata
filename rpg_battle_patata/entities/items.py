@@ -90,7 +90,7 @@ class Wearable(Item) :
         self.attribut = attribut #if true, item Worn
 
     def __str__(self):
-        return super().__str__() + f" {"Worn" if self.attribut else "Not worn"}."
+        return super().__str__() + f" {'Worn' if self.attribut else 'Not worn'}."
 
     @staticmethod
     def name_gen():
