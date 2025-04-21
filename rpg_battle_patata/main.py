@@ -6,10 +6,9 @@ def start_game():
     print(f"Welcome to our dungeon, {player.name}, proud {player.__class__.__name__}!")
     wait_key()
     clear_console()
-
-    try:
+    try :
         game_loop(player)
-    except DeadCharacter:
+    except DeadCharacter :
         pass
 
     print("This is the end of the game. We hope you had fun.")

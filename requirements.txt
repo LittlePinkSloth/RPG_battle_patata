@@ -1,2 +1,1 @@
-colorama
-setuptools
+colorama~=0.4.6

@@ -1,19 +1,7 @@
 import random
-from ..entities.items import Item, Wearable
-from ..game.utils import GameObject, rprint, bprint
-
-class RPGException (BaseException) :
-    pass
-
-class DeadCharacter(RPGException) :
-    def __init__(self, char) :
-        self.dead = char
-
-    def __str__(self):
-        if isinstance(self.dead, Player) :
-            return "Sorry, you died. Heroically, but still... You're dead."
-        else :
-            return f"{self.dead.name} enemy died. You won."
+from .items import Item, Wearable
+from ..game.display import wait_for_input, display_list, display_msg, display_player_turn
+from .rpg_exceptions import DeadCharacter, ToMuchWearable, GameObject
 
 class Character(GameObject) :
     def __init__(self, name, maxhp : int = 20, maxma : int = 10, att : int = 2, df : int = 2):
@@ -51,30 +39,23 @@ class Character(GameObject) :
 
     def attack_target(self, enemy):
         dc = self.dice()
-        if dc == 1 :
-            if isinstance(self,Player) :
-                bprint(f"\n{self.name} attacks and... Failed. {enemy.name} is laughing.")
-            else :
-                rprint(f"\n{self.name} attacks and... Failed. {enemy.name} is laughing.")
-            return
-        elif 5 <= dc :
-            atk = self.att * 2
-        else :
+        if dc == 1:
+            return f"{self.name} attacks and... Failed. {enemy.name} is laughing.", isinstance(self, Player)
+        elif dc < 5 :
             atk = self.att
-        try :
-            dmg = enemy.take_damage(atk)
-            if isinstance(self, Player):
-                bprint(f"\n{self.name} attacked and dealt {dmg} damage.")
-            else :
-                rprint(f"\n{self.name} attacked and dealt {dmg} damage.")
-        except DeadCharacter :
-            if isinstance(self, Player):
-                bprint(f"\n{self.name} attacked. {enemy.name} took too much damage.")
-            else :
-                rprint(f"\n{self.name} attacked. {enemy.name} took too much damage.")
+        elif 5 == dc:
+            atk = self.att * 2
+        else:
+            #6 et + : true damage
+            enemy.hp -= self.att
+            enemy.is_alive()
+            return f"{self.name} attacked and dealt {self.att} damage.", isinstance(self, Player)
+
+        dmg = int(enemy.take_damage(atk))
+        return f"{self.name} attacked and dealt {dmg} damage.", isinstance(self, Player)
 
 class Player(Character) :
-    def __init__(self, name, maxhp = 20, maxma = 10, att = 2, df = 2):
+    def __init__(self, name, special =('', 0), maxhp = 20, maxma = 10, att = 2, df = 2):
         super().__init__(name, maxhp =maxhp, maxma =maxma, att =att, df =df)
         self.inventory = []
         self.equipment = []
@@ -82,16 +63,16 @@ class Player(Character) :
         self.lvl = 1
         self.luck = 0
         self.status = None
+        self.special = special
 
     def __str__(self):
-
         if self.status :
             return super().__str__() + f' | Status : {self.status}'
         else :
             return super().__str__()
 
     def lvl_up(self):
-        xp_to_lvl = 0
+        #xp_to_lvl = 0
         if self.lvl < 5 :
             xp_to_lvl = self.lvl * 10
         elif self.lvl < 11 :
@@ -102,111 +83,84 @@ class Player(Character) :
         if self.exp >= xp_to_lvl :
             self.lvl += 1
             self.exp -= xp_to_lvl
-            self.att += (1+self.lvl/6)
-            self.df += (1+self.lvl/6)
-            self.maxhp += (2 + self.lvl*1.1)
-            self.hp += (2 + self.lvl*1.1)
-            self.maxma += (1 + self.lvl*1)
-            self.mana += (1 + self.lvl*1)
-            print(f"Congratulations, you leveled up to level : {self.lvl} ! You're stronger now (+ {int(self.maxhp / 4)} hp, + {int(self.maxma / 5)} mana, + {1 + int(self.att / 4)} attack, + {1 + int(self.df / 4)} defense).")
+            self.att += int(1+self.lvl/6)
+            self.df += int(1+self.lvl/6)
+            self.maxhp += int(2 + self.lvl*1.1)
+            self.hp += int(2 + self.lvl*1.1)
+            self.maxma += int(1 + self.lvl*1)
+            self.mana += int(1 + self.lvl*1)
+            return f"Congratulations, you leveled up to level : {self.lvl} ! You're stronger now (+ {int(self.maxhp / 4)} hp, + {int(self.maxma / 5)} mana, + {1 + int(self.att / 4)} attack, + {1 + int(self.df / 4)} defense)."
         else :
-            print(f"You have {self.exp}/{xp_to_lvl} exp to level {self.lvl + 1}.")
+            return f"You have {self.exp}/{xp_to_lvl} exp to level {self.lvl + 1}."
 
     def gain_xp(self, xp):
         self.exp += xp
-        self.lvl_up()
-
-    def get_inventory(self):
-        inv = ""
-        for i in range(len(self.inventory)) :
-            inv += f"  {i + 1} --> {self.inventory[i]}\n"
-        return inv
-
-    def get_equipment(self):
-        inv = ""
-        for i in range(len(self.equipment)) :
-            inv += f"  {i + 1} --> {self.equipment[i]}\n"
-        return inv
+        return self.lvl_up()
 
     def special_attack(self, enemy):
-        print("It seems you do not have any special attack. You just attack the enemy.")
-        self.attack_target(enemy)
+        msg = "It seems you do not have any special attack. You just attack the enemy. "
+        res = self.attack_target(enemy)
+        return msg + res[0], res[1]
 
     def myturn(self, adv):
         self.is_alive()
-        text_input = "." + 3*"_" + "YOUR TURN" + 3*"_" + ".\n" + "|   1 - Attack\n" + "|   2 - Special capacity\n" + "|   3 - Use an item from your inventory.\n" + "|   --> "
-        todo = input(text_input)
-        while todo not in ['1','2','3'] :
-            todo = input("Please chose 1, 2 or 3. \n--> ")
+        list_choices = ["Attack",f"Special capacity : {self.special[0]} (cost {self.special[1]} mana)","Use an item from your inventory"]
+        todo = wait_for_input(display_player_turn(list_choices), False)
         match todo :
-            case '1' :
-                self.attack_target(adv)
-            case '2' :
-                self.special_attack(adv)
-            case '3' :
-                print(self.get_inventory())
-                while True :
-                    choice = input("Witch item to use ? 0 to use nothing.\n --> ")
-                    if not choice.isdigit() : continue
-                    if choice == '0' :
-                        #si le joueur ne veut pas utiliser d'item, il recommence son tour
-                        self.myturn(adv)
-                        break
-                    try :
-                        item = self.inventory[int(choice)-1]
-                        self.use_item(item)
-
-                        break
-                    except IndexError :
-                        continue
+            case 0 :
+                display_msg(*self.attack_target(adv))
+            case 1 :
+                display_msg(*self.special_attack(adv))
+            case 2 :
+                choice = wait_for_input(display_list(self.inventory), True)
+                if choice == -1 :
+                    return self.myturn(adv)
+                try:
+                    item = self.inventory[choice]
+                    display_msg(self.use_item(item), True)
+                except IndexError:
+                    pass
 
     def add_item(self, item):
         self.inventory.append(item)
 
     def use_item(self, item):
         if isinstance(item, Wearable) : return self.equip_wearable(item)
-        try :
-            print(f"You use {item.name}.")
-            item.use(self)
-            self.is_alive()
-        except DeadCharacter as dd :
-            print(dd)
-        except Exception as e :
-            print(f"Sorry, something went wrong with your item : {e}")
 
+        msg = item.use(self)
+        self.is_alive()
         del self.inventory[self.inventory.index(item)]
+        if msg :
+            return f"You use {item.name}." + " " + msg
+        else :
+            return f"You use {item.name}."
 
     def equip_wearable(self, item):
-        if len(self.equipment) > 4 :
-            print("You can only wear 5 items at one time, please unequip something before.")
+        try :
+            if len(self.equipment) > 4 :
+                raise ToMuchWearable
+            item.use(self)
+            del self.inventory[self.inventory.index(item)]
+            self.equipment.append(item)
+            return f"You've equiped {item.name}."
+        except ToMuchWearable :
             return self.change_wearable(item)
 
-        item.use(self)
-        del self.inventory[self.inventory.index(item)]
-        self.equipment.append(item)
-        print(f"You've equiped {item.name}.")
-
     def change_wearable(self, item):
-        print(self.get_equipment())
-        while True:
-            choice = input("Witch item do you want to unequip ? 0 to unequip nothing.\n --> ")
-            if not choice.isdigit(): continue
-            if choice == '0':
-                break
-            try:
-                uitem = self.equipment[int(choice) - 1]
-                self.unequip_wearable(uitem)
-                print(f"You've unequiped {uitem.name}.")
-                self.equip_wearable(item)
-                break
-            except IndexError:
-                continue
+        choice = wait_for_input(display_list(self.equipment), True)
+        if choice == -1 :
+            return
+        try:
+            uitem = self.equipment[int(choice) - 1]
+            self.unequip_wearable(uitem)
+            return self.equip_wearable(item)
+        except IndexError:
+            pass
 
     def unequip_wearable(self, item):
         item.use(self)
         del self.equipment[self.equipment.index(item)]
         self.inventory.append(item)
-
 
     def to_dict(self):
         return {
@@ -253,97 +207,98 @@ class Player(Character) :
         return char
 
 class Baker(Player) :
-    definition = "Baker : player who has more hp and attack. Special attack (5) : strong gluten. Divides by 2 the ennemy attack, and if you have luck, divides the defense too."
+    definition = "Baker : player who has more hp and attack. Special attack (cost 5 mana) : strong gluten. Divides by 2 the ennemy attack, and if you have luck, divides the defense too."
     def __init__(self, name):
-        super().__init__(name, maxhp = 25, att = 3)
-        self.__special = "Strong gluten"
+        self.special = ("Strong gluten", 5)
+        super().__init__(name, special = self.special, maxhp = 25, att = 3)
 
     def special_attack(self, enemy):
-        if self.mana >= 5 :
-            self.mana -= 5
-            print(f"\nYou invoke {self.__special}.")
+        if self.mana >= self.special[1] :
+            self.mana -= self.special[1]
+            msg = f"You invoke {self.special[0]}.\n"
             de = self.dice()
             if de == 6 :
-                bprint("Critical hit ! Enemy attack and defense are divided by 2.")
                 enemy.att = int(enemy.att/2)
                 enemy.df = int(enemy.df/ 2)
+                return msg + "Critical hit ! Enemy attack and defense are divided by 2.", True
             else :
-                bprint("Enemy attack is divided by 2.")
                 enemy.att = int(enemy.att / 2)
+                return msg + "Enemy attack is divided by 2.", True
         else :
-            bprint("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
+            return "Not enough mana. That's sad, you've lost time so it's your enemy's turn...", True
 
 class NarcissicPerverse(Player) :
     definition = "Narcissic perverse : player who has more mana. Special attack (5) : Guiltifying ! Deals some damages to enemy and heal of half."
     def __init__(self, name):
-        super().__init__(name, maxma=15)
-        self.__special = "Guiltifying"
+        self.special = ("Guiltifying", 5)
+        super().__init__(name, maxma=15, special=self.special)
 
     def special_attack(self, enemy):
-        if self.mana >= 5 :
-            self.mana -= 5
-            bprint(f"\nYou invoke {self.__special}.")
+        if self.mana >= self.special[1] :
+            self.mana -= self.special[1]
+            msg = f"You invoke {self.special[0]}.\n"
             dmg = int(4*1.2*self.lvl)
             self.hp += int(dmg/2)
             if self.hp > self.maxhp : self.hp = self.maxhp
             enemy.hp -= dmg
-            bprint(f"{enemy.name} enemy lost {dmg} hp while you healed by {int(dmg/2)}.")
-            try :
-                enemy.is_alive()
-            except DeadCharacter :
-                print("Enemy dead.")
+            enemy.is_alive()
+            return msg + f"{enemy.name} enemy lost {dmg} hp while you healed by {int(dmg/2)}.", True
         else :
-            bprint("Not enough mana. That's sad, you've lost time so it's your enemy's turn...")
+            return "Not enough mana. That's sad, you've lost time so it's your enemy's turn...", True
 
 class Gambler(Player) :
     definition = "Gambler : player who has a better luck. Special attack (3) : Spring rolls. If 6 or higher, inflicts half of the enemy max hp damages."
     def __init__(self, name):
-        super().__init__(name, df=3,maxhp=22)
+        self.special = ("Spring rolls",3)
+        super().__init__(name, df=3,maxhp=22, special = self.special)
         self.luck = 2
-        self.__special = "Spring rolls"
 
     def special_attack(self, enemy):
-        if self.mana >= 3 :
-            self.mana -= 3
-            bprint(f"\nYou invoke {self.__special}.")
+        if self.mana >= self.special[1] :
+            self.mana -= self.special[1]
+            msg = f"\nYou invoke {self.special[0]}.\n"
             de = self.dice()
             if de == 5 :
-                bprint(f"{de}... Not that bad ! {enemy.name} suffers {int(enemy.maxhp/4)}.")
+                dmg = int(enemy.maxhp / 4)
+                enemy.hp -= dmg
+                enemy.is_alive()
+                return msg + f"{de}... Not that bad ! {enemy.name} suffers {dmg}.", True
             elif 6<= de <= 8 :
-                bprint(f"{de} ! {enemy.name} suffers {int(enemy.maxhp/2)} damages.")
-                enemy.hp -= int(enemy.maxhp/2)
-                try:
-                    enemy.is_alive()
-                except DeadCharacter:
-                    print("Enemy dead.")
+                dmg = int(enemy.maxhp/2)
+                enemy.hp -= dmg
+                enemy.is_alive()
+                return msg + f"{de} ! {enemy.name} suffers {dmg} damages.", True
             elif de > 8 :
                 l = random.randint(1, de-8)
-                bprint(f"{de} ! {enemy.name} suffers {int(enemy.maxhp / 2)} damages.")
+                dmg = int(enemy.maxhp / 2)
+                msg += f"{de} ! {enemy.name} suffers {dmg} damages. \n"
                 enemy.hp -= int(enemy.maxhp / 2)
-                try:
-                    enemy.is_alive()
-                except DeadCharacter:
-                    print("Enemy dead.")
+                enemy.is_alive()
+
                 match l :
                     case 1,2 :
-                        bprint(f"{enemy.name} also lost {int(enemy.att / 4)} attack.")
+                        msg += f"{enemy.name} also lost {int(enemy.att / 4)} attack."
                         enemy.att -= int(enemy.att / 4)
                     case 3,4 :
-                        bprint(f"{enemy.name} also lost {int(enemy.df / 4)} defense.")
+                        msg += f"{enemy.name} also lost {int(enemy.df / 4)} defense."
                         enemy.df -= int(enemy.df / 4)
                     case _ :
-                        bprint(f"{enemy.name} also lost {int(enemy.att / 4)} attack and {int(enemy.df / 4)} defense.")
+                        msg += f"{enemy.name} also lost {int(enemy.att / 4)} attack and {int(enemy.df / 4)} defense."
                         enemy.att -= int(enemy.att / 4)
                         enemy.df -= int(enemy.df / 4)
+                return msg, True
             else :
-                bprint(f"{de}... Nice try but it does nothing.")
+                return f"{de}... Nice try but it does nothing.", True
+        else :
+            return "Not enough mana. That's sad, you've lost time so it's your enemy's turn...", True
 
     def dice(self):
         return random.randint(1, 6+self.luck)
 
     def lvl_up(self):
-        super().lvl_up()
+        msg = super().lvl_up()
         if self.lvl % 5 == 0 :
             self.luck +=1
-            print("You also increase your luck by 1.")
+            msg += "You also increase your luck by 1."
+        return msg
 

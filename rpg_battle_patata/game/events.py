@@ -4,6 +4,8 @@ from ..entities.items import *
 from genericpath import exists
 from ..data.ambiance import *
 from .utils import *
+from .display import *
+
 
 def enemy_generator(ply) :
     #Eny stats management from player stats
@@ -60,80 +62,77 @@ def event_generator(ply) :
     ev = event_correspondance[event['event']]
 
     eny = ev(ply)
-    if eny :
-        enemy_encounter(eny)
+    if isinstance(eny, Character) :
+        display_msg(enemy_encounter(eny), False)
+        wait_key()
+        clear_console()
         return eny
     else :
+        display_msg(*eny)
         wait_key()
         return False
 
 def chest(ply) :
     ns = random.randint(0, len(chest_discovery)-1)
-    print(chest_discovery[ns])
-    nprint("You can let it alone (1), or open it (2).")
-    op = input("--> ")
-    while op not in ['1', '2'] :
-        op = input("--> ")
-    if op == '1' : return print("You go ahead in the dungeon without touching the chest.")
-    print("You try to open it...")
+    message = chest_discovery[ns]
+    list_choices = ['Well... I prefer to let it alone', 'Of course I open it !']
+    choice = wait_for_input(display_list(list_choices, message))
+    if choice == 0 : return "You go ahead in the dungeon without touching the chest.", -1
+
+    msg = "You try to open it...\n"
     inside = ply.dice()
     if inside == 1 :
         hp = int(ply.maxhp*0.3)
-        rprint(f"It was trapped. You lose {ply.take_damage(hp)} hp.")
+        return msg + f"It was trapped. You lose {ply.take_damage(hp)} hp.", False
     elif inside == 2 :
-        uprint(f"The chest is empty...")
+        return msg + f"The chest is empty...", 2
     elif inside < 6 :
         it = item_generator(ply)
-        uprint(f"{it.name} was in the chest. It's now in your inventory")
         ply.add_item(it)
+        return msg + f"{it.name} was in the chest. It's now in your inventory", 2
     else :
         it = item_generator(ply)
         it1 = item_generator(ply)
-        uprint(f"Lucky day ! The chest was full of objects ! You found {it.name} and {it1.name} !")
         ply.add_item(it)
         ply.add_item(it1)
+        return msg + f"Lucky day ! The chest was full of objects ! You found {it.name} and {it1.name} !", 2
+
 
 def fire_camp(ply) :
     fire = random.randint(0, len(safe_room)-1)
-    print(safe_room[fire])
-    nprint("Do you want to take a nap ?\n1 : yes\n2 : no ! I'm not a child.\n3 : I prefer to save the game !\n4 : I'd like to check my inventory.")
-    heal = input("--> ")
-    while heal not in ['1', '2', '3', '4'] :
-        heal = input("--> ")
+    message = safe_room[fire] + "\n" + "Do you want to take a nap ?"
+    list_choices = ["Why not, this place looks good !","Never ! I'm not a child.", "I prefer to save the game !", "I'd like to check my inventory."]
+    choice = wait_for_input(display_list(list_choices, message))
 
-    match heal :
-        case '2' :
-            return print("Ok ok, no need to shout out... So, you can continue.")
-        case '1' :
+    match choice :
+        case 1 :
+            return "Ok ok, no need to shout out... So, you can continue.", -1
+        case 0 :
             ply.hp += int(ply.maxhp/2)
             if ply.hp > ply.maxhp : ply.hp = ply.maxhp
             ply.mana += int(ply.maxma/2)
             if ply.mana > ply.maxma : ply.mana = ply.maxma
-            uprint(f"You rested sucessfully. You feel better : {ply.hp}/{ply.maxhp} hp, {ply.mana}/{ply.maxma} mana.")
-        case '3' :
+            return f"You rested sucessfully. You feel better : {ply.hp}/{ply.maxhp} hp, {ply.mana}/{ply.maxma} mana.", 1
+        case 2 :
             try :
                 dirs = file_paths['save']
                 if not exists(dirs):
                     os.mkdir(dirs)
-                file = dirs  + ply.name + ".json"
+                file = dirs  + "ignore_" + ply.name + ".json"
                 ok = save_game(ply.to_dict(), file)
-                if ok : print("Game successfully saved. You can continue !")
+                if ok : return "Game successfully saved. You can continue !", -1
             except Exception as e :
-                print(f"Sorry smt went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
-        case '4' :
-            print(ply.get_inventory())
-            while True:
-                choice = input("Witch item to use ? 0 to use nothing.\n --> ")
-                if not choice.isdigit(): continue
-                if choice == '0':
-                    break
-                try:
-                    item = ply.inventory[int(choice) - 1]
-                    ply.use_item(item)
-                    break
-                except IndexError:
-                    continue
+               return f"Sorry smt went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}."
+        case 3 :
+            choice = wait_for_input(display_list(ply.inventory), True)
+            if choice == -1 :
+                return fire_camp(ply)
+            try :
+                item = ply.inventory[choice]
+                return ply.use_item(item), True
+            except IndexError :
+                return "It seems something went wrong, so you just continue your adventure in the dungeon.", -1
         case _ :
-            return "It seems something went wrong, so you just continue your adventure in the dungeon."
+            return "It seems something went wrong, so you just continue your adventure in the dungeon.", -1
 
 

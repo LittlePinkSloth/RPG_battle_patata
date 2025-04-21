@@ -1,8 +1,5 @@
-from ..game.utils import GameObject, file_paths
-
-class ItemNotFound(ValueError) :
-    def __str__(self, item = ''):
-        return f"You do not have this item ({item}) in your inventory."
+from ..game.utils import file_paths
+from .rpg_exceptions import ItemNotFound, GameObject
 
 class Item(GameObject):
     def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0, **kwargs):
@@ -58,9 +55,9 @@ class AntiStatus(Item) :
     def use(self, ply):
         if ply.status == self.attribut :
             ply.status = None
-            print(f"You're not suffering {self.attribut} anymore.")
+            return f"You're not suffering {self.attribut} anymore."
         else :
-            print(f"It does nothing because you aren't suffering {self.attribut}.")
+            return f"It does nothing because you aren't suffering {self.attribut}."
 
 
 class Eatable(Item) :

@@ -1,69 +1,66 @@
 from .utils import *
 from ..entities.characters import *
 from .events import event_generator
+from .display import display_msgs, display_msg, display_list, display_stats
+from ..entities.rpg_exceptions import LoadingError, NoSavedGame
 
 def openning() :
-    print("Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?")
-    nprint("1 : Load a game\n2 : Start a new one")
-    rep = input("--> ")
-    while rep not in ['1', '2'] :
-        rep = input("--> ")
+    message = "Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?"
+    list_choices = ["Start a new game", "Load a game from save directory","Load a game from a custom path (please provide full path with the .json exention)"]
+    choice = wait_for_input(display_list(list_choices, message))
 
-    if rep == '2' :
+    if choice == 0 :
         return chose_player()
-    else :
-        #print("To load a game, the game file need to be a '.json'. You need to write exactly were this file is (the full path to it, including the file name and the .json extension), otherwise, it will bug and you'll juste start a new game.")
-        print("Here are the saved games available. Please chose one to load.")
-        choice = ''
-        abspath = os.path.abspath(file_paths['save'])
+    elif choice == 1 :
+        path = file_paths['save']
         try :
-            if not os.path.exists(abspath) : raise LoadingError
-        except LoadingError :
-            print("No 'save' dir in your game directory. Please create one or start a new game.")
-            exit()
-        list_file = os.listdir(abspath)
-        if len(list_file) == 0 :
-            print("No game saved. You'll start a new one.")
+            if not os.path.exists(path) :
+                os.makedirs(path)
+            list_choices = os.listdir(path)
+            if len(list_choices) == 0 :
+                raise NoSavedGame
+        except NoSavedGame :
             return chose_player()
 
-        for i, fl in enumerate(list_file) :
-            print(f"{i+1} : {fl}")
-            choice = input("--> ")
-            while choice not in [str(x+1) for x in range(len(list_file))] :
-                choice = input("--> ")
-        try :
-            pathfile = os.path.join(abspath, list_file[int(choice) - 1])
-            data = load_datas(pathfile)
-            if isinstance(data, bool) : raise LoadingError
-            ply = Player.from_dict(data)
-            print("Character successfully loaded. Have fun :).")
-            return ply
-        except LoadingError :
-            print("We were unable to load your file.")
-            return chose_player()
-        except Exception as e :
-            print(
-                f"Sorry something went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e}.")
-            return chose_player()
+        message = "Here are the saved games available. Please chose one to load."
+        choice = wait_for_input(display_list(list_choices, message), True)
+        if choice == -1 :
+            return openning()
+        else :
+            return load_game(os.path.join(path, list_choices[choice]))
+    elif choice == 2 :
+        path = input("Enter you save absolute path (including C:// and .json extension) : \n-->  ").replace('"','')
+        return load_game(path)
+
 
 def chose_player() :
-    nprint("What is your name ?")
-    name = input("--> ").strip()
+    name = input("What is your name ?\n-->  ").strip()
     while len(name) == 0 :
         name = input("--> ").strip()
-    print(f"\nHello {name}. What kind of player are you ?\n")
-    nprint(f"  1 : {Baker.definition}\n  2 : {NarcissicPerverse.definition}\n  3 : {Gambler.definition}\n")
-    choice = input("--> ")
-    while choice not in ['1', '2', '3'] :
-        choice = input("--> ")
+    message = f"\nHello {name}. What kind of player are you ?\n"
+    list_choices = [f"{Baker.definition}",f"{NarcissicPerverse.definition}",f"{Gambler.definition}"]
+    choice = wait_for_input(display_list(list_choices, message))
 
     match choice :
-        case '1' :
+        case 0 :
             return Baker(name)
-        case '2' :
+        case 1 :
             return NarcissicPerverse(name)
-        case '3' :
+        case 2 :
             return Gambler(name)
+
+def load_game(path) :
+    try:
+        if not os.path.exists(path) : raise LoadingError
+        data = load_datas(path)
+        if isinstance(data, bool): raise LoadingError
+        return Player.from_dict(data)
+    except LoadingError:
+        return chose_player()
+    except Exception as e:
+        print(
+            f"Sorry something went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e} : {e.__str__()}.")
+        return chose_player()
 
 def game_loop(player):
     while player.is_alive():
@@ -79,12 +76,13 @@ def game_loop(player):
                     print()
                     player.myturn(enemy_)
                     enemy_.is_alive()
-                wait_key()
+                    wait_key()
                 clear_console()
             except DeadCharacter as dead:
-                print(dead)
-                if enemy_.name in str(dead):
-                    player.gain_xp(int(enemy_.maxhp/1.5))
+                if enemy_.name in dead.__str__() :
+                    display_msgs(dead.__str__(), player.gain_xp(int(enemy_.maxhp/1.5)), is_player=True)
                     wait_key()
                     clear_console()
+                else :
+                    display_msg(dead.__str__(), False)
                 break

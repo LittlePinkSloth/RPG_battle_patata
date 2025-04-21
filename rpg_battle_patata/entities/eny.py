@@ -1,7 +1,7 @@
 import random
 from ..entities.characters import Character
 from ..data.ambiance import *
-from ..game.utils import rprint
+from ..game.display import display_eny_turn
 
 
 class Eny(Character) :
@@ -44,7 +44,7 @@ class Eny(Character) :
 
     def myturn(self, adv):
         self.is_alive()
-        self.attack_target(adv)
+        display_eny_turn(self.attack_target(adv)[0])
 
 
 class EnyOldMan(Eny) :
@@ -57,9 +57,9 @@ class EnyOldMan(Eny) :
         self.is_alive()
         i = self.dice()
         if i < 3 :
-            rprint(f"{self.name} forgot of your presence and does nothing.")
+            display_eny_turn(f"{self.name} forgot of your presence and does nothing.")
         else :
-            self.attack_target(adv)
+            display_eny_turn(self.attack_target(adv)[0])
 
 class EnyRageDog(Eny) :
     def __init__(self, hp, att, df, strengh='normal', **kwargs):
@@ -70,11 +70,11 @@ class EnyRageDog(Eny) :
     def myturn(self, adv):
         self.is_alive()
         i = self.dice()
-        self.attack_target(adv)
+        msg = self.attack_target(adv)[0]
         if i > 4 :
-            rprint(f"{self.name} bites again !")
-            self.attack_target(adv)
-
+            display_eny_turn(msg, f"{self.name} bites again !", self.attack_target(adv)[0])
+        else :
+            display_eny_turn(msg)
 
 ENEMY_CLASSES = {
     "EnyRageDog": EnyRageDog,
