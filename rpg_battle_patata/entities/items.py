@@ -49,7 +49,7 @@ class AntiStatus(Item) :
 
 
     def __str__(self):
-        return f"{self.name} {items_dict["AntiStatus.__str__"]} {self.attribut}."
+        return f"{self.name} {items_dict['AntiStatus.__str__']} {self.attribut}."
 
     def set_attribut(self):
         from rpg_battle_patata.game.events import load_datas
