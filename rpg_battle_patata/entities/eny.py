@@ -28,7 +28,7 @@ class Eny(Character) :
             self.definition = eny_dict["Eny.definition"] + self.common_name.lower() + '.'
 
     def __str__(self):
-        pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.att} ATK | {self.df} DEF | {eny_dict["Eny.__str__.strengh"]} : {self.strengh} | Type : {self.common_name}"
+        pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.att} ATK | {self.df} DEF | {eny_dict['Eny.__str__.strengh']} : {self.strengh} | Type : {self.common_name}"
         return pres
 
     @staticmethod
