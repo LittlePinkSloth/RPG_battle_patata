@@ -93,7 +93,7 @@ class Wearable(Item) :
         super().__init__(self.name, hp=hp, mana=mana, att=att, df=df, attribut=self.attribut)
 
     def __str__(self):
-        return super().__str__() + f" {items_dict["Wearable.worn"] if self.attribut else items_dict["Wearable.notworn"]}."
+        return super().__str__() + f" {items_dict['Wearable.worn'] if self.attribut else items_dict['Wearable.notworn']}."
 
     @staticmethod
     def name_gen():
