@@ -10,13 +10,13 @@
     "strengh": "elite",
     "weight": 15,
     "min_level": 2,
-    "message": "An elite warrior stands in your way!"
+    "message": "eny_generator.msg_elite"
   },
   {
     "strengh": "boss",
     "weight": 10,
     "min_level": 3,
-    "message": "⚠️ A terrifying boss emerges from the shadows..."
+    "message": "eny_generator.msg_boss"
   }
 ],
 

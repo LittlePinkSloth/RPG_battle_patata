@@ -1,11 +1,11 @@
 {
   "status_table" : [
-    {"status": "poison", "item": "antidote", "effect" : "hp", "rate" : -0.05, "weight" : 1},
-    {"status": "stupidity", "item": "mind-swipper", "effect" : "mana", "rate" : -0.1, "weight" : 1},
-    {"status": "burn", "item": "water", "effect" : "hp", "rate" : -0.1, "weight" : 1},
-    {"status": "paralized", "item": "shaker", "effect" : "df", "rate" : -0.25, "weight" : 1},
-    {"status": "blind", "item": "eyes", "effect" : "att", "rate" : -0.25, "weight" : 1},
-    {"status": "black-cat", "item": "white-paint", "effect" : "luck", "rate" : -0.2, "weight" : 1}
+    {"status": "status.poison", "item": "status.poison.item", "effect" : "hp", "rate" : -0.05, "weight" : 1},
+    {"status": "status.stupidity", "item": "status.stupidity.item", "effect" : "mana", "rate" : -0.1, "weight" : 1},
+    {"status": "status.burn", "item": "status.burn.item", "effect" : "hp", "rate" : -0.1, "weight" : 1},
+    {"status": "status.paralized", "item": "status.paralized.item", "effect" : "df", "rate" : -0.25, "weight" : 1},
+    {"status": "status.blind", "item": "status.blind.item", "effect" : "att", "rate" : -0.25, "weight" : 1},
+    {"status": "status.black-cat", "item": "status.black-cat.item", "effect" : "luck", "rate" : -0.2, "weight" : 1}
 ],
 
 "buff_table" : [

@@ -1,31 +1,31 @@
 {
   "items" : [
   {
-    "name" : "Health potion",
+    "name" : "Eatable.name_hppot",
     "class" : "Eatable",
     "hp" : "hp",
     "weight": 1
   },
   {
-    "name" : "Adaptive Health potion",
+    "name" : "Eatable.name_hppota",
     "class" : "Eatable",
     "attribut" : "adaptive",
     "weight": 1
   },
   {
-    "name" : "Mana potion",
+    "name" : "Eatable.name_manapot",
     "class" : "Eatable",
     "mana" : "mana",
     "weight": 1
   },
   {
-    "name" : "Adaptive Mana potion",
+    "name" : "Eatable.name_manapota",
     "class" : "Eatable",
     "attribut" : "adaptive",
     "weight": 1
   },
   {
-    "name" : "Bread and cheese",
+    "name" : "Eatable.name_bandc",
     "class" : "Eatable",
     "hp" : "hp",
     "mana" : "mana",

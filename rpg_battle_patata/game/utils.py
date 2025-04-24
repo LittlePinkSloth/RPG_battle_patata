@@ -1,5 +1,4 @@
-import json, os, random, sys
-from ..data.ambiance import meeting
+import json, os, sys
 
 #python -m rpg_battle_patata
 
@@ -11,9 +10,20 @@ file_paths = {
     'save' : 'rpg_battle_patata/save/',
 }
 
-def enemy_encounter(eny) :
-    num = random.randint(0, len(meeting)-1)
-    return f"{meeting[num]} \nIt's {eny.name}! \nIt can be defined by : {eny.definition} You have to fight for your life !"
+
+def replace_variables(phrase: str, loc_var_tables: dict) -> str:
+    for k in loc_var_tables:
+        if k in phrase:
+            phrase = phrase.replace(k, str(loc_var_tables[k]))
+
+    return phrase.replace('{', '').replace('}', '')
+
+def replace_variables_list(list_phrase : list, loc_var_tables : dict) -> list :
+    res = []
+    for phrase in list_phrase :
+        res.append(replace_variables(phrase, loc_var_tables))
+
+    return res
 
 def wait_key():
     if sys.platform == "win32":
@@ -32,10 +42,10 @@ def save_game(dict_ply, filename) -> bool:
             json.dump(dict_ply, f, indent=4)
             return True
     except OSError as e:  # Spécifie une exception liée au système
-        print("The file could not be opened:", os.strerror(e.errno))
+        print(f"The file could not be opened: {os.strerror(e.errno)}")
         return False
     except Exception as e:
-        print(f"Erreur ({type(e).__name__}) :", str(e))
+        print(f"Erreur ({type(e).__name__}) : {e.__str__()}")
         return False
 
 def load_datas(pathfile) : #fusion avec load_game

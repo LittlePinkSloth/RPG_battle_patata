@@ -1,4 +1,6 @@
 import unittest, os
+from rpg_battle_patata.game import language_manager
+language_manager.load_langage('rpg_battle_patata/data/text_english.json')
 from rpg_battle_patata.game.utils import save_game, load_datas
 from test_characters import funcname
 

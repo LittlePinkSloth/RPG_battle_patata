@@ -19,6 +19,7 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 - Sauvegarde et chargement de partie
 - Console colorée (via `colorama`) et clear/pause pour une meilleure lisibilité
 - Structure de projet modulaire pour une meilleure lisibilité et évolutivité
+- Plusieurs langues disponibles : Français, anglais et espagnol
 
 ## 🚀 Lancer le jeu
 ### Prérequis 
@@ -56,15 +57,21 @@ RPG_battle_patata/
 │   ├── EVENT_TABLE.json
 │   ├── ITEM_TABLE.json
 │   ├── STATUS_TABLE.json
-│   └── ambiance.py          
+│   ├── text_english.json
+│   ├── text_french.json
+│   └── text_spanish.json
 │
 ├── entities/                # Définition des entités du jeu
 │   ├── characters.py        # Joueur, classes...
 │   ├── eny.py               # Ennemis
+│   ├── rpg_exceptions.py    # Gestion des erreurs spécifiques
 │   └── items.py             # Objets, équipements, effets
 │
 ├── game/                    # Logique du jeu
 │   ├── events.py            # Gestion des événements et combats
+│   ├── engine.py            # Gestion du moteur du jeu
+│   ├── display.py           # Fonctions d'affichage
+│   ├── language_manager.py  # Gestion des langues
 │   └── utils.py             # Outils divers (clear screen, couleurs, etc)
 │
 ├── save/                    # Dossier pour les sauvegardes

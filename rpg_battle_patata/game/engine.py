@@ -3,10 +3,11 @@ from ..entities.characters import *
 from .events import event_generator
 from .display import display_msgs, display_msg, display_list, display_stats
 from ..entities.rpg_exceptions import LoadingError, NoSavedGame
+from rpg_battle_patata.game.language_manager import engine_dict
 
 def openning() :
-    message = "Welcome to the wonderful game RPG battle patata. You will explore an infinite dungeon full of dangers.\nDo you want to load a game, or start a new one ?"
-    list_choices = ["Start a new game", "Load a game from save directory","Load a game from a custom path (please provide full path with the .json exention)"]
+    message = engine_dict["openning.message"]
+    list_choices = engine_dict["openning.list_choices"]
     choice = wait_for_input(display_list(list_choices, message))
 
     if choice == 0 :
@@ -22,22 +23,22 @@ def openning() :
         except NoSavedGame :
             return chose_player()
 
-        message = "Here are the saved games available. Please chose one to load."
+        message = engine_dict["openning.savedgame"]
         choice = wait_for_input(display_list(list_choices, message), True)
         if choice == -1 :
             return openning()
         else :
             return load_game(os.path.join(path, list_choices[choice]))
     elif choice == 2 :
-        path = input("Enter you save absolute path (including C:// and .json extension) : \n-->  ").replace('"','')
+        path = input(engine_dict["openning.loadfile"]).replace('"','')
         return load_game(path)
 
 
 def chose_player() :
-    name = input("What is your name ?\n-->  ").strip()
+    name = input(engine_dict["chose_player.name"]).strip()
     while len(name) == 0 :
         name = input("--> ").strip()
-    message = f"\nHello {name}. What kind of player are you ?\n"
+    message = replace_variables(engine_dict["chose_player.player"], {"name" : name})
     list_choices = [f"{Baker.definition}",f"{NarcissicPerverse.definition}",f"{Gambler.definition}"]
     choice = wait_for_input(display_list(list_choices, message))
 
@@ -58,8 +59,7 @@ def load_game(path) :
     except LoadingError:
         return chose_player()
     except Exception as e:
-        print(
-            f"Sorry something went wrong. For now, no specific error management has been done, because I don't know what to expect.\nThis error is : {e} : {e.__str__()}.")
+        print(replace_variables(engine_dict["load_game.exception"], {"e":e}))
         return chose_player()
 
 def game_loop(player):

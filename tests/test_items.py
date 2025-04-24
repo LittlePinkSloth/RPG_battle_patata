@@ -1,4 +1,6 @@
 import unittest
+from rpg_battle_patata.game import language_manager
+language_manager.load_langage('rpg_battle_patata/data/text_english.json')
 from rpg_battle_patata.entities.items import Eatable, Wearable, AntiStatus
 from test_characters import funcname
 

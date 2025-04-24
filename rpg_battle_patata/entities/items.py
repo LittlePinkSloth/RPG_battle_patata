@@ -1,18 +1,21 @@
-from ..game.utils import file_paths
+from ..game.utils import file_paths, replace_variables
 from .rpg_exceptions import ItemNotFound, GameObject
+from rpg_battle_patata.game.language_manager import items_dict, status_dict, storytelling
+
 
 class Item(GameObject):
-    def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0, **kwargs):
+    def __init__(self, item, hp = 0, mana= 0, att = 0, df = 0, attribut= None, **kwargs):
         super().__init__(item)
         self.hp = hp
         self.mana = mana
         self.att = att
         self.df = df
-        self.attribut = None #attribut is polymorphe and highly depends of item's class
+        self.attribut = attribut #attribut is polymorphe and highly depends of item's class
+        self.loc_vars = {"self.attribut": self.attribut, "self.name" : self.name, "self.hp" : self.hp, "self.mana" : self.mana, "self.att" : self.att, "self.df" : self.df, }
 
     def __str__(self):
-        pres = f"{self.name} : {self.hp} hp / {self.mana} mana / {self.att} attack / {self.df} defense."
-        return pres
+        #pres = f"{self.name} : {self.hp} hp / {self.mana} mana / {self.att} attack / {self.df} defense."
+        return replace_variables(items_dict["Items.__str__"], self.loc_vars)
 
     def __repr__(self):
         return f"{self.name} / class : {self.__class__.__name__} / attribut : {self.attribut}"
@@ -40,30 +43,33 @@ class Item(GameObject):
 
 class AntiStatus(Item) :
     def __init__(self, name, **kwargs) :
-        super().__init__(name)
+        self.name = name
         self.attribut = self.set_attribut()
+        super().__init__(self.name, attribut=self.attribut)
+
 
     def __str__(self):
-        return f"{self.name} used to cure {self.attribut}."
+        return f"{self.name} {items_dict["AntiStatus.__str__"]} {self.attribut}."
 
     def set_attribut(self):
         from rpg_battle_patata.game.events import load_datas
         status = load_datas(file_paths['status'])['status_table']
+
         for stat in status :
-            if stat['item'] == self.name.lower() : return stat['status']
+            if status_dict[stat['item']] == self.name.lower() : return status_dict[stat['status']]
 
     def use(self, ply):
         if ply.status == self.attribut :
             ply.status = None
-            return f"You're not suffering {self.attribut} anymore."
+            return replace_variables(items_dict["AntiStatus.use.ok"], self.loc_vars)
         else :
-            return f"It does nothing because you aren't suffering {self.attribut}."
+            return replace_variables(items_dict["AntiStatus.use.no"], self.loc_vars)
 
 
 class Eatable(Item) :
     def __init__(self, name, attribut='normal', hp = 0, mana= 0, att = 0, df = 0, **kwargs):
-        super().__init__(name, hp = hp, mana= mana, att = att, df = df)
         self.attribut = attribut
+        super().__init__(name, hp=hp, mana=mana, att=att, df=df, attribut = self.attribut)
 
     def __str__(self):
         return super().__str__() + f" Type : {self.attribut}."
@@ -83,19 +89,18 @@ class Eatable(Item) :
 class Wearable(Item) :
     def __init__(self, hp=0, mana=0, att=0, df=0, attribut = False, **kwargs):
         self.name = self.name_gen()
-        super().__init__(self.name, hp=hp, mana=mana, att=att, df=df)
-        self.attribut = attribut #if true, item Worn
+        self.attribut = attribut  # if true, item Worn
+        super().__init__(self.name, hp=hp, mana=mana, att=att, df=df, attribut=self.attribut)
 
     def __str__(self):
-        return super().__str__() + f" {'Worn' if self.attribut else 'Not worn'}."
+        return super().__str__() + f" {items_dict["Wearable.worn"] if self.attribut else items_dict["Wearable.notworn"]}."
 
     @staticmethod
     def name_gen():
         import random
-        from rpg_battle_patata.data.ambiance import item_adjectives, equipable_items
-        adj = random.randint(0, len(item_adjectives) - 1)
-        obj = random.randint(0, len(equipable_items) - 1)
-        name = item_adjectives[adj] + ' ' + equipable_items[obj]
+        adj = random.randint(0, len(storytelling["item_adjectives"]) - 1)
+        obj = random.randint(0, len(storytelling["equipable_items"]) - 1)
+        name = storytelling["item_adjectives"][adj] + ' ' + storytelling["equipable_items"][obj]
         return name
 
     def use(self, ply):

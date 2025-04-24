@@ -1,3 +1,6 @@
+from rpg_battle_patata.game.language_manager import rpg_exceptions_dict
+from ..game.utils import replace_variables
+
 class GameObject :
     def __init__(self, name):
         self.name = name
@@ -10,24 +13,24 @@ class LoadingError(RPGException) :
         print(self.__str__())
 
     def __str__(self):
-        return "We were unable to load your file. You'll start a new game."
+        return rpg_exceptions_dict["LoadingError.__str__"]
 
 class NoSavedGame(LoadingError) :
     def __init__(self):
         print(self.__str__())
     def __str__(self):
-        return "No saved game in the save/ directory. You'll start a new game."
+        return rpg_exceptions_dict["NoSavedGame.__str__"]
 
 class ItemNotFound(RPGException) :
-    def __str__(self, item = ''):
-        return f"You do not have this item ({item}) in your inventory."
+    def __str__(self):
+        return rpg_exceptions_dict["ItemNotFound.__str__"]
 
 class ToMuchWearable(RPGException) :
     def __init__(self):
         from ..game.display import bprint
         bprint(self.__str__())
     def __str__(self):
-        return "You can only wear 5 items at one time, please unequip something before."
+        return rpg_exceptions_dict["ToMuchWearable.__str__"]
 
 class DeadCharacter(RPGException) :
     def __init__(self, char) :
@@ -36,9 +39,9 @@ class DeadCharacter(RPGException) :
     def __str__(self):
         from .characters import Player
         if isinstance(self.dead, Player) :
-            return "Sorry, you died. Heroically, but still... You're dead."
+            return rpg_exceptions_dict["DeadCharacter.__str__.player"]
         else :
-            return f"{self.dead.name} enemy died. You won."
+            return replace_variables( rpg_exceptions_dict["DeadCharacter.__str__.eny"], {"self.dead.name" : self.dead.name})
 
     def __repr__(self):
         return self.__str__()
