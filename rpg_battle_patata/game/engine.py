@@ -72,6 +72,7 @@ def game_loop(player):
                     player.myturn(enemy_)
                     enemy_.myturn(player)
                 else :
+                    player.is_alive()
                     enemy_.myturn(player)
                     print()
                     player.myturn(enemy_)

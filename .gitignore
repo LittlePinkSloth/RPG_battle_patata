@@ -5,3 +5,4 @@ __pycache__/
 .env
 ignore*
 rpg_battle_patata.egg-info/
+comp_dict.py

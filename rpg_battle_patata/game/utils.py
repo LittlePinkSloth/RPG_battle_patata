@@ -48,7 +48,7 @@ def save_game(dict_ply, filename) -> bool:
         print(f"Erreur ({type(e).__name__}) : {e.__str__()}")
         return False
 
-def load_datas(pathfile) : #fusion avec load_game
+def load_datas(pathfile) :
     try:
         with open(pathfile, "r",  encoding="utf-8") as f:
             return json.load(f)

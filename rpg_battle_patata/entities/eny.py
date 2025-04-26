@@ -1,8 +1,10 @@
 import random
 from ..entities.characters import Character
-from ..game.display import display_eny_turn
-from rpg_battle_patata.game.language_manager import eny_dict, storytelling
-from ..game.utils import replace_variables
+from ..entities.status import Status
+from ..game.display import display_eny_turn, display_msg
+from rpg_battle_patata.game.language_manager import eny_dict, storytelling, status_dict
+from ..game.utils import replace_variables, load_datas, file_paths
+
 
 class Eny(Character) :
     def __init__(self, hp=20, att=2, df=2, strengh='normal', common_name = '', **kwargs):
@@ -76,8 +78,64 @@ class EnyRageDog(Eny) :
         else :
             display_eny_turn(msg)
 
+class EnyElementaryBug(Eny) :
+    def __init__(self, strengh='normal', **kwargs):
+        self.common_name = eny_dict["EnyElementaryBug.common_name"]
+        self.definition = eny_dict["EnyElementaryBug.definition"]
+        super().__init__(hp=1, att=0, df=0, strengh=strengh, common_name=self.common_name)
+        self.life = self.setlife()
+        self.element = self.set_element()
+        self.malus = self.set_malus()
+
+    def set_malus(self) :
+        status_table = load_datas(file_paths['status'])
+        available_status = [s for s in status_table['status_table'] if s['type'] == 0]
+        element_table = {k: (status_dict[v["status"]], v["effect"]) for k, v in zip(eny_dict['element_list'], available_status)}
+        return element_table[self.element]
+
+    @staticmethod
+    def set_element():
+        return eny_dict["element_list"][random.randint(0, len(eny_dict["element_list"])-1)]
+
+    def setlife(self):
+        if self.strengh == 'normal' :
+            return 1
+        elif self.strengh == 'elite' :
+            return 2
+        else :
+            return 3
+
+    def is_alive(self):
+        if self.hp <= 0 and self.life :
+            self.hp = 1
+            self.life -= 1
+            display_msg(eny_dict["EnyElementaryBug.still_alive"])
+            return True
+        else :
+            super().is_alive()
+
+    def create_status(self):
+        duration = 2 + self.life
+        strengh = self.life if self.life else 1
+        once = True if self.malus[1] in ["att", "df", "luck"] else False
+        reversible = True if self.malus[1] in ["att", "df", "luck"] else False
+
+        return Status(self.malus[0], duration=duration, strengh=strengh, once=once, reversible=reversible)
+
+    def myturn(self, adv):
+        self.is_alive()
+        self.apply_all_status()
+        adv.set_status(self.create_status())
+        msg = eny_dict["EnyElementaryBug.myturn"]
+        loc_vars = {"self.name" : self.name, "self.malus[0]" : self.malus[0]}
+        display_eny_turn(replace_variables(msg, loc_vars))
+
+
+
+
 ENEMY_CLASSES = {
     "EnyRageDog": EnyRageDog,
     "EnyOldMan": EnyOldMan,
-    "Eny": Eny
+    "Eny": Eny,
+    "EnyElementaryBug" : EnyElementaryBug
 }

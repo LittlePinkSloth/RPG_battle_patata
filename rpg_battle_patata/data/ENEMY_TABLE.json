@@ -23,14 +23,22 @@
 "enemies" : [
   {
     "class": "EnyOldMan",
+    "min_level": 1,
     "weight": 10
   },
   {
     "class": "EnyRageDog",
+    "min_level": 2,
     "weight": 10
   },
   {
     "class": "Eny",
+    "min_level": 1,
+    "weight": 5
+  },
+  {
+    "class": "EnyElementaryBug",
+    "min_level": 3,
     "weight": 10
   }
 ]

@@ -59,12 +59,14 @@ class AntiStatus(Item) :
             if status_dict[stat['item']] == self.name.lower() : return status_dict[stat['status']]
 
     def use(self, ply):
-        if ply.status == self.attribut :
-            ply.status = None
-            return replace_variables(items_dict["AntiStatus.use.ok"], self.loc_vars)
-        else :
-            return replace_variables(items_dict["AntiStatus.use.no"], self.loc_vars)
-
+        to_cure = []
+        for stat in ply.status :
+            if stat.status == self.attribut :
+                to_cure.append(stat)
+        for stat in to_cure :
+            ply.cure_status(stat)
+        if len(to_cure)>0 : return replace_variables(items_dict["AntiStatus.use.ok"], self.loc_vars)
+        else : return replace_variables(items_dict["AntiStatus.use.no"], self.loc_vars)
 
 class Eatable(Item) :
     def __init__(self, name, attribut='normal', hp = 0, mana= 0, att = 0, df = 0, **kwargs):

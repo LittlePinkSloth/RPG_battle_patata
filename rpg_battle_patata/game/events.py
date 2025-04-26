@@ -16,14 +16,15 @@ def enemy_generator(ply) :
     eny_data = load_datas(file_paths['enemies'])
     available_strh = [entry for entry in eny_data['strh'] if ply.lvl >= entry["min_level"]]
     eny_strh = random.choices(available_strh, weights=[e["weight"] for e in available_strh])[0]
-    chosen_class = random.choices(eny_data['enemies'], weights=[e["weight"] for e in eny_data['enemies']])[0]
+    available_eny = [entry for entry in eny_data['enemies'] if ply.lvl >= entry["min_level"]]
+    chosen_class = random.choices(available_eny, weights=[e["weight"] for e in available_eny])[0]
     eny_class = ENEMY_CLASSES[chosen_class['class']]
 
     if eny_strh["message"]:
         display_big_message(events_dict[eny_strh["message"]], Fore.MAGENTA)
         wait_key()
 
-    return eny_class(hp, att, df, eny_strh["strengh"])
+    return eny_class(hp = hp, att=att, df=df, strengh = eny_strh["strengh"])
 
 def enemy_encounter(eny) :
     num = random.randint(0, len(storytelling["eny_meeting"])-1)

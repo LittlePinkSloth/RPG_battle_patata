@@ -2,12 +2,9 @@ import unittest, os
 from rpg_battle_patata.game import language_manager
 language_manager.load_langage('rpg_battle_patata/data/text_english.json')
 from rpg_battle_patata.game.utils import save_game, load_datas
-from test_characters import funcname
 
 class TestSaveGame(unittest.TestCase):
-
     def test_save_and_load(self):
-        funcname("test_save_and_load")
         data = {"name": "Bob", "level": 2}
         save_game(data, "test_save.json")
         loaded = load_datas("test_save.json")

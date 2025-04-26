@@ -283,6 +283,8 @@
     "Eatable.name_bandc": "Bread and cheese"
   },
   "characters_dict" : {
+    "character.cure_status" : "{name} is not touching you anymore.",
+    "character.impact_status" : "You are touched by {status.name}. It applies {value} {effect}.",
   "attack_target.failed": "{self.name} attacks and... Failed. {enemy.name} is laughing.",
   "attack_target.atk": "{self.name} attacked and dealt {dmg} damage.",
   "lvl_up.no": "You have {self.exp}/{xp_to_lvl} exp to level {self.lvl + 1}.",
@@ -295,6 +297,7 @@
   ],
   "player.use_item": "You use {item.name}.",
   "player.equip_wearable": "You've equiped {item.name}.",
+    "player.change_wearable.no" : "You didn't swap any equipment.",
   "Baker.definition": "Baker : player who has more hp and attack. Special attack (cost 5 mana) : divides by 2 the ennemy attack, and if you have luck, divides the defense too.",
   "Baker.class" : "Baker",
     "Baker.special": "Strong gluten",
@@ -324,7 +327,12 @@
   "EnyOldMan.myturn": "{self.name} forgot of your presence and does nothing.",
   "EnyRageDog.common_name": "Rage dog",
   "EnyRageDog.definition": "A strange dog with white slobber. It can attack twice, be carefull.",
-  "EnyRageDog.myturn": "{self.name} bites again !"
+  "EnyRageDog.myturn": "{self.name} bites again !",
+  "EnyElementaryBug.common_name" : "Elementary bug",
+  "EnyElementaryBug.definition" : "An anoying bug that applies malus depending of its element. Carefull, it's not that simple to kill.",
+  "EnyElementaryBug.still_alive" : "You thought that it was scratched. But its still moving !",
+  "EnyElementaryBug.myturn" : "{self.name} stung you and applied {self.malus[0]}.",
+  "element_list" : ["Toxic","Clever", "Blazing","Electric", "Bright", "Cursed"]
 },
 "display_dict" : {
   "wait_for_input.zero": "0 to go back.\n--> ",
@@ -385,17 +393,29 @@
   "start_game.end": "This is the end of the game. We hope you had fun."
 },
 "status_dict" : {
-  "status.poison": "poison",
-  "status.poison.item": "antidote",
-  "status.stupidity": "stupidity",
-  "status.stupidity.item": "mind-swipper",
-  "status.burn": "burn",
-  "status.burn.item": "water",
-  "status.paralized": "paralized",
-  "status.paralized.item": "shaker",
-  "status.blind": "blind",
-  "status.blind.item": "eyes",
-  "status.black-cat": "black-cat",
-  "status.black-cat.item": "white-paint"
+  "status.malus.poison": "poison",
+  "status.item.poison": "antidote",
+  "status.malus.stupidity": "stupidity",
+  "status.item.stupidity": "mind-swipper",
+  "status.malus.burn": "burn",
+  "status.item.burn": "water",
+  "status.malus.paralized": "paralized",
+  "status.item.paralized": "shaker",
+  "status.malus.blind": "blind",
+  "status.item.blind": "eyes",
+  "status.malus.black-cat": "black-cat",
+  "status.item.black-cat": "white-paint",
+  "status.strengh.slight" : "slight",
+  "status.strengh.serious" : "serious",
+  "status.bonus.cuckold" : "cuckold",
+  "status.item.cuckold" : "lottery winner's ticket",
+  "status.bonus.love" : "in love",
+  "status.item.love" : "love potion",
+  "status.bonus.anger" : "anger",
+  "status.item.anger" : "red capa",
+  "status.bonus.stone" : "rock abs",
+  "status.item.stone" : "fitness center season ticket",
+  "status.bonus.wikipedia" : "Mr. Wikipedia",
+  "status.item.wikipedia" : "WiFi connexion"
 }
 }

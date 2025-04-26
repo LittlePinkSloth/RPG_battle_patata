@@ -4,9 +4,10 @@ from ..game.display import wait_for_input, display_list, display_msg, display_pl
 from .rpg_exceptions import DeadCharacter, ToMuchWearable, GameObject
 from ..game.utils import replace_variables, replace_variables_list
 from rpg_battle_patata.game.language_manager import characters_dict
+from .status import Status
 
 class Character(GameObject) :
-    def __init__(self, name, maxhp : int = 20, maxma : int = 10, att : int = 2, df : int = 2, status = None):
+    def __init__(self, name, maxhp : int = 20, maxma : int = 10, att : int = 2, df : int = 2, luck = 0):
         super().__init__(name)
         self.maxhp = int(maxhp)
         self.hp = self.maxhp
@@ -14,22 +15,97 @@ class Character(GameObject) :
         self.mana = self.maxma
         self.att = int(att)
         self.df = int(df)
-        self.status = status
+        self.status = []
+        self.luck = luck
+
 
     def __repr__(self):
         return f"Character(name={self.name}, hp={self.hp}/{self.maxhp}, mana={self.mana}/{self.maxma}, att={self.att}, df={self.df})"
 
     def __str__(self):
         pres = f"{self.name} : {self.hp}/{self.maxhp} HP | {self.mana}/{self.maxma} mana | {self.att} ATK | {self.df} DEF"
+        if self.status :
+            pres += f' | Status : {self.status}'
         return pres
 
-    def set_status(self, status):
-        self.status = status
+    def set_status(self, status) :
+        self.status.append(status)
+
+    def cure_status(self, status) :
+        i = self.status.index(status)
+        name = status.name
+        if status.reversible :
+            effect, value = status.reverse_effect()
+            match effect :
+                case "maxhp" :
+                    self.maxhp -= value
+                case "maxma" :
+                    self.maxma -= value
+                case "att" :
+                    self.att -= value
+                case "df" :
+                    self.df -= value
+                case "luck" :
+                    self.luck -= value
+                case _ :
+                    pass
+        del self.status[i]
+        return replace_variables(characters_dict["character.cure_status"], {"name" : name.capitalize()})
+
+    def match_status_effect(self, effect, rate):
+        match effect:
+            case "hp":
+                val = int(self.hp * rate)
+                self.hp += val
+                return val
+            case "maxhp":
+                val = int(self.maxhp * rate)
+                self.maxhp += val
+                if self.hp > self.maxhp : self.hp = self.maxhp
+                return val
+            case "luck":
+                val = rate
+                self.luck += val
+                return val
+            case "att":
+                val = int(self.att * rate)
+                self.att += val
+                return val
+            case "df":
+                val = int(self.df * rate)
+                self.df += val
+                return val
+            case "maxma":
+                val = int(self.maxma * rate)
+                self.maxma += val
+                if self.mana > self.maxma : self.mana = self.maxma
+                return val
+            case "mana":
+                val = int(self.mana * rate)
+                self.mana += val
+                return val
+            case _:
+                return 0
+
+    def apply_all_status(self):
+        msg = ''
+        for stat in reversed(self.status) :
+            msg += f"{self.impact_status(stat)}\n"
+        return msg, isinstance(self, Player)
+
+    def impact_status(self, status):
+        effect, rate = status.get_status_effect()
+        if effect and rate :
+            loc_vars = {"status.name": status.name, "effect": effect, "value" : self.match_status_effect(effect, rate)}
+            status.apply_effect(loc_vars['value'])
+            return replace_variables(characters_dict["character.impact_status"], loc_vars)
+        else :
+            return self.cure_status(status)
 
     def take_damage(self, dmg):
         realdmg = dmg - self.df if (dmg - self.df) >= 0 else 0
         self.hp -=realdmg
-        self.is_alive()
+        #self.is_alive()
         return realdmg
 
     def is_alive(self):
@@ -37,7 +113,7 @@ class Character(GameObject) :
         else : raise DeadCharacter(self)
 
     def dice(self):
-        return random.randint(1,6)
+        return random.randint(1,6+self.luck)
 
     def attack_target(self, enemy):
         loc_vars = {"self.name" : self.name, "enemy.name" : enemy.name}
@@ -52,29 +128,22 @@ class Character(GameObject) :
         else:
             #6 et + : true damage
             enemy.hp -= self.att
-            enemy.is_alive()
+            #enemy.is_alive()
             dmg = self.att
 
         loc_vars['dmg'] = dmg
         return replace_variables(characters_dict["attack_target.atk"], loc_vars), isinstance(self, Player)
 
 class Player(Character) :
-    def __init__(self, name, special =('', 0), maxhp = 20, maxma = 10, att = 2, df = 2):
-        super().__init__(name, maxhp =maxhp, maxma =maxma, att =att, df =df)
+    def __init__(self, name, special =('', 0), maxhp = 20, maxma = 10, att = 2, df = 2, luck=0):
+        super().__init__(name, maxhp =maxhp, maxma =maxma, att =att, df =df, luck=luck)
         self.inventory = []
         self.equipment = []
         self.exp = 0
         self.lvl = 1
-        self.luck = 0
-        self.status = None
+        self.status = []
         self.special = special
 
-
-    def __str__(self):
-        if self.status :
-            return super().__str__() + f' | Status : {self.status}'
-        else :
-            return super().__str__()
 
     def lvl_up(self):
         if self.lvl < 5 :
@@ -114,6 +183,7 @@ class Player(Character) :
 
     def myturn(self, adv):
         self.is_alive()
+        display_msg(*self.apply_all_status())
         loc_vars = {"self.special[0]" : self.special[0], "self.special[1]" : self.special[1]}
         list_choices = replace_variables_list(characters_dict["player.myturn"], loc_vars)
         todo = wait_for_input(display_player_turn(list_choices), False)
@@ -160,7 +230,7 @@ class Player(Character) :
     def change_wearable(self, item):
         choice = wait_for_input(display_list(self.equipment), True)
         if choice == -1 :
-            return
+            return characters_dict["player.change_wearable.no"]
         try:
             uitem = self.equipment[int(choice) - 1]
             self.unequip_wearable(uitem)
@@ -188,18 +258,14 @@ class Player(Character) :
             "luck" : self.luck,
             "inventory": [item.to_dict() for item in self.inventory],
             "equipment" : [item.to_dict() for item in self.equipment],
-            "status" : self.status
+            "status" : [status.to_dict() for status in self.status]
         }
 
     @staticmethod
     def from_dict(data):
         char_class = data["class"]
-        if char_class == "Baker":
-            char = Baker(data["name"])
-        elif char_class == "NarcissicPerverse":
-            char = NarcissicPerverse(data["name"])
-        elif char_class == "Gambler":
-            char = Gambler(data["name"])
+        if char_class in CHARACTER_CLASSES :
+            char = CHARACTER_CLASSES[char_class](data["name"])
         else:
             char = Player(data["name"])  # fallback
 
@@ -214,7 +280,7 @@ class Player(Character) :
         char.exp = data["exp"]
         char.inventory = [Item.from_dict(item_data) for item_data in data["inventory"]]
         char.equipment = [Item.from_dict(item_data) for item_data in data["equipment"]]
-        char.status = data["status"]
+        char.status = [Status.from_dict(status_data) for status_data in data["status"]]
         return char
 
 class Baker(Player) :
@@ -229,7 +295,7 @@ class Baker(Player) :
             self.mana -= self.special[1]
             msg = replace_variables(characters_dict["AnyClass.special_attack.invoke"], {"self.special[0]" : self.special[0]})
             de = self.dice()
-            if de == 6 :
+            if de >= 6 :
                 enemy.att = int(enemy.att/2)
                 enemy.df = int(enemy.df/ 2)
                 return msg + characters_dict["Baker.special_attack.critical"], True
@@ -241,6 +307,7 @@ class Baker(Player) :
 
 class NarcissicPerverse(Player) :
     definition = characters_dict["NaracissicPerverse.definition"]
+    class_name = characters_dict["NarcissicPerverse.class"]
     def __init__(self, name):
         self.special = (characters_dict["NaracissicPerverse.special"], 5)
         super().__init__(name, maxma=15, special=self.special)
@@ -254,7 +321,7 @@ class NarcissicPerverse(Player) :
             self.hp += int(dmg/2)
             if self.hp > self.maxhp : self.hp = self.maxhp
             enemy.hp -= dmg
-            enemy.is_alive()
+            #enemy.is_alive()
             loc_vars = {"enemy.name":enemy.name, "int(dmg/2)" : int(dmg/2) , "dmg": dmg}
             return msg + replace_variables(characters_dict["NaracissicPerverse.special_attack.ok"], loc_vars), True
         else :
@@ -262,6 +329,7 @@ class NarcissicPerverse(Player) :
 
 class Gambler(Player) :
     definition = characters_dict["Gambler.definition"]
+    class_name = characters_dict["Gambler.class"]
     def __init__(self, name):
         self.special = (characters_dict["Gambler.special"],3)
         super().__init__(name, df=3,maxhp=22, special = self.special)
@@ -277,13 +345,13 @@ class Gambler(Player) :
             loc_vars = {"de" : de, "dmg" : dmg, "enemy.name" : enemy.name}
             if 5 <= de <= 8 :
                 enemy.hp -= dmg
-                enemy.is_alive()
+                #enemy.is_alive()
                 return msg + replace_variables(characters_dict["Gambler.special_attack.yes"], loc_vars), True
             elif de > 8 :
                 l = random.randint(1, de-8)
                 msg += replace_variables(characters_dict["Gambler.special_attack.yes"], loc_vars)
                 enemy.hp -= dmg
-                enemy.is_alive()
+                #enemy.is_alive()
                 atk = int(enemy.att / 4)
                 df = int(enemy.df / 4)
                 loc_vars["atk"] = atk
@@ -305,9 +373,6 @@ class Gambler(Player) :
         else :
             return characters_dict["AnyClass.special_attack.nomana"], True
 
-    def dice(self):
-        return random.randint(1, 6+self.luck)
-
     def lvl_up(self):
         msg = super().lvl_up()
         if self.lvl % 5 == 0 :
@@ -315,3 +380,9 @@ class Gambler(Player) :
             msg += characters_dict["Gambler.lvl_up"]
         return msg
 
+
+CHARACTER_CLASSES = {
+    "Baker" : Baker,
+    "NarcissicPerverse" : NarcissicPerverse,
+    "Gambler" : Gambler
+}

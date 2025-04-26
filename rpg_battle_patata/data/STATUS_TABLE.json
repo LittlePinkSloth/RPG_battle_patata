@@ -1,18 +1,15 @@
 {
   "status_table" : [
-    {"status": "status.poison", "item": "status.poison.item", "effect" : "hp", "rate" : -0.05, "weight" : 1},
-    {"status": "status.stupidity", "item": "status.stupidity.item", "effect" : "mana", "rate" : -0.1, "weight" : 1},
-    {"status": "status.burn", "item": "status.burn.item", "effect" : "hp", "rate" : -0.1, "weight" : 1},
-    {"status": "status.paralized", "item": "status.paralized.item", "effect" : "df", "rate" : -0.25, "weight" : 1},
-    {"status": "status.blind", "item": "status.blind.item", "effect" : "att", "rate" : -0.25, "weight" : 1},
-    {"status": "status.black-cat", "item": "status.black-cat.item", "effect" : "luck", "rate" : -0.2, "weight" : 1}
-],
-
-"buff_table" : [
-    {"buff" : "cuckold", "effect" : "luck", "rate" : 0.5, "weight" : 1},
-{"buff" : "love", "effect" : "hp", "rate" : 0.2, "weight" : 1},
-{"buff" : "anger", "effect" : "att", "rate" : 0.3, "weight" : 1},
-{"buff" : "stone", "effect" : "df", "rate" : 0.5, "weight" : 1},
-{"buff" : "wikipedia", "effect" : "mana", "rate" : 0.5, "weight" : 1}
-]
+    {"status": "status.malus.poison", "item": "status.item.poison", "type" : 0, "effect" : "hp", "rate" : -0.05, "weight" : 1},
+    {"status": "status.malus.stupidity", "item": "status.item.stupidity", "type" : 0, "effect" : "mana", "rate" : -0.1, "weight" : 1},
+    {"status": "status.malus.burn", "item": "status.item.burn", "type" : 0, "effect" : "maxhp", "rate" : -0.01, "weight" : 1},
+    {"status": "status.malus.paralized", "item": "status.item.paralized", "type" : 0, "effect" : "df", "rate" : -0.25, "weight" : 1},
+    {"status": "status.malus.blind", "item": "status.item.blind", "type" : 0, "effect" : "att", "rate" : -0.25, "weight" : 1},
+    {"status": "status.malus.black-cat", "item": "status.item.black-cat", "type" : 0, "effect" : "luck", "rate" : -1, "weight" : 1},
+    {"status" : "status.bonus.cuckold", "item": "status.item.cuckold", "type" : 1, "effect" : "luck", "rate" : 2, "weight" : 1},
+    {"status" : "status.bonus.love", "item": "status.item.love", "type" : 1, "effect" : "maxhp", "rate" : 0.2, "weight" : 1},
+    {"status" : "status.bonus.anger", "item": "status.item.anger", "type" : 1, "effect" : "att", "rate" : 0.3, "weight" : 1},
+    {"status" : "status.bonus.stone", "item": "status.item.stone", "type" : 1, "effect" : "df", "rate" : 0.5, "weight" : 1},
+    {"status" : "status.bonus.wikipedia", "item": "status.item.wikipedia", "type" : 1, "effect" : "maxma", "rate" : 0.5, "weight" : 1}
+  ]
 }
