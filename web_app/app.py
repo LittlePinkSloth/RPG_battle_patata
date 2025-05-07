@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from rpg_battle_patata.game.language_manager import get_dict
 import random, secrets
-from game_manager import GameManager
+from .game_manager import GameManager
 game = GameManager()
 
 app = Flask(__name__)
