@@ -1,10 +1,35 @@
-import json
+import json, os
+from flask import session
+from ..paths import DATA_DIR
 
 language = {
-    'English' : ('rpg_battle_patata/data/text_english.json', "Chose language"),
-    'Français' : ('rpg_battle_patata/data/text_french.json', "Sélectionnez une langue"),
-    'Español' : ('rpg_battle_patata/data/text_spanish.json', "Escoger una lengua")
+    'English' : ('english', "Chose language"),
+    'Français' : ('french', "Sélectionnez une langue"),
+    'Español' : ('spanish', "Escoger una lengua")
 }
+
+_language_cache = {}
+
+def get_current_language():
+    try :
+        return session.get('lang', 'english')
+    except RuntimeError : #handle the error with the console mode and correctly returns the langage chosen by the user at the begining of the game
+        for key in _language_cache.keys() :
+            return key
+        return 'english'
+
+def get_dict(name):
+    lang = get_current_language()
+    if lang not in _language_cache:
+        load_language(lang)
+    return _language_cache[lang].get(name, {})
+
+def load_language(lang):
+    filepath = os.path.join(DATA_DIR, f"text_{lang}.json")
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    _language_cache[lang] = data
+
 
 def chose_langage() -> str :
     list_choices = [k for k in language.keys()]
@@ -17,7 +42,7 @@ def chose_langage() -> str :
         choice = input('--> ')
     return language[list_choices[int(choice)-1]][0]
 
-_dict = {}
+"""_dict = {}
 storytelling = {}
 items_dict =  {}
 characters_dict = {}
@@ -28,9 +53,10 @@ events_dict =  {}
 engine_dict =  {}
 main_dict =  {}
 status_dict =  {}
+webapp_dict =  {}
 
 def load_langage(filepath) :
-    global _dict, storytelling, items_dict, characters_dict, eny_dict, display_dict, rpg_exceptions_dict, events_dict, engine_dict, main_dict, status_dict
+    global _dict, storytelling, items_dict, characters_dict, eny_dict, display_dict, rpg_exceptions_dict, events_dict, engine_dict, main_dict, status_dict, webapp_dict
     with open(filepath, 'r', encoding='utf-8') as f:
         _dict = json.load(f)
 
@@ -44,3 +70,5 @@ def load_langage(filepath) :
     engine_dict = _dict["engine_dict"]
     main_dict = _dict["main_dict"]
     status_dict = _dict["status_dict"]
+    webapp_dict = _dict["webapp_dict"]"""
+

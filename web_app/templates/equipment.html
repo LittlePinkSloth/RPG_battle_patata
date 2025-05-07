@@ -1,0 +1,34 @@
+{% if game.equiped_item > 0 or game.unequiped_item > 0 %}
+<div class="inventory">
+  <h2>{{ session["dico"]["equipment.equipment"] }}</h2>
+    {% if game.equiped_item > 0 %}
+        <h3>{{ session["dico"]["equipment.worn"] }}</h3>
+        <form method="post" action = "{{ url_for('manage_equipment') }}">
+            {% for it in game.player.equipment %}
+                <button class="btn_inventory" type="submit" name="unequip" value="{{it.id}}">{{ session["dico"]["equipment.equipment.unequip"] }} {{ it }}</button>
+            {% endfor %}
+        </form>
+    {% endif %}
+    {% if game.unequiped_item > 0 %}
+      <h3>{{ session["dico"]["equipment.inventory"] }}</h3>
+      {% if game.equiped_item < 5 %}
+        <form method="post" action = "{{ url_for('manage_equipment') }}">
+            {% for it in game.player.inventory %}
+                {% if it.__class__.__name__ == "Wearable" %}
+                    <button class='btn_inventory' type="submit" name="equip" value="{{it.id}}">{{ session["dico"]["equipment.equipment.equip"] }} {{ it }}</button>
+                {% endif %}
+            {% endfor %}
+        </form>
+      {% else %}
+        <p>{{ session["dico"]["equipment.worn.max"] }}</p>
+          <ul>
+              {% for it in game.player.inventory %}
+                {% if it.__class__.__name__ == "Wearable" %}
+                    <li>{{it}}</li>
+                {% endif %}
+            {% endfor %}
+          </ul>
+      {% endif %}
+    {% endif %}
+</div>
+{% endif %}

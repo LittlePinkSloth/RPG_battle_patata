@@ -1,6 +1,4 @@
 import unittest
-from rpg_battle_patata.game import language_manager
-language_manager.load_langage('rpg_battle_patata/data/text_english.json')
 from rpg_battle_patata.entities.characters import Player
 
 class TestCharacters(unittest.TestCase):
@@ -23,10 +21,14 @@ class TestCharacters(unittest.TestCase):
         self.assertNotIn(status, player.status)
 
     def test_player_gain_xp_and_level_up(self):
+        class DummyEny :
+            maxhp = 9
+
+
         player = Player("Bob", maxhp=0, maxma=0, att=0, df=0)
         player.exp = 5
         player.lvl = 1
-        player.gain_xp(6)
+        player.gain_xp(DummyEny())
         self.assertEqual(player.lvl, 2)
         self.assertEqual(player.exp, 1)
         self.assertGreater(player.hp, 0)
@@ -66,33 +68,6 @@ class TestCharacters(unittest.TestCase):
         player.unequip_wearable(item)
         self.assertEqual(len(player.inventory), 1)
         self.assertEqual(len(player.equipment), 0)
-
-    """def test_change_wearable(self):
-        player = Player("Bob")
-        class DummyItem:
-            def __init__(self, name):
-                self.name = name
-
-            def use(self, ply):
-                pass
-
-        item1 = DummyItem('Test1')
-        item2 = DummyItem('Test2')
-
-        player.add_item(item1)
-        player.add_item(item2)
-        player.equip_wearable(item1)
-
-        self.assertEqual(player.equipment[0], item1)
-        self.assertNotIn(item1, player.inventory)
-        self.assertIn(item2, player.inventory)
-
-        player.change_wearable(item2)
-        self.assertEqual(len(player.inventory), 1)
-        self.assertEqual(len(player.equipment), 1)
-
-        self.assertNotIn(item1, player.equipment)
-        self.assertIn(item2, player.equipment)"""
 
     def test_to_from_dict(self):
         player = Player('Bob')

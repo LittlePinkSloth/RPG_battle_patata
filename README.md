@@ -10,6 +10,7 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 
 ## ⚔️ Fonctionnalités
 
+- Interface web !
 - Choix de personnages jouables avec des classes différentes
 - Système de combat tour par tour
 - Génération aléatoire d'événements, ennemis et objets via des tables JSON
@@ -20,6 +21,8 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 - Console colorée (via `colorama`) et clear/pause pour une meilleure lisibilité
 - Structure de projet modulaire pour une meilleure lisibilité et évolutivité
 - Plusieurs langues disponibles : Français, anglais et espagnol
+- Buffs et malus variés (aveuglement, confusion...)
+- Lieux spéciaux (magiques ou piégés)
 
 ## 🚀 Lancer le jeu
 ### Prérequis 
@@ -81,14 +84,13 @@ RPG_battle_patata/
 
 - `random`, `os`, `msvcrt` (standard Python)
 - `colorama` (console colorée)
+- `flask` (webapp)
 
 Installez-les via le `requirements.txt` fourni.
 
 ## 🔮 À venir
 
 - Nouvelles classes de personnages
-- Buffs et malus variés (aveuglement, confusion...)
-- Lieux spéciaux (magiques ou piégés)
 - Possibilité de jeter ou trier les objets
 - Système de quêtes aléatoires
 

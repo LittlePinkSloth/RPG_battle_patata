@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+<form class="char-grid" method="POST" action ="{{ url_for('char_selection') }}" >
+    <div class="char_story story_style">
+        <p>{{texts["greetings"]}}</p>
+        <p>{{ session["dico"]["char_selection.who"]}}</p>
+    </div>
+
+        <div class="char1 char_style">
+            <p>
+                <input type="radio" name="player" value="Baker" id="Baker" required>
+                <label for="Baker">{{texts["dico"]["Baker.definition"]}}</label>
+            </p>
+        </div>
+        <div class="char2 char_style">
+            <p>
+                <input type="radio" name="player" value="NarcissicPerverse" id="NarcissicPerverse" required>
+                <label for="NarcissicPerverse">{{texts["dico"]["NarcissicPerverse.definition"]}}</label>
+            </p>
+        </div>
+        <div class="char3 char_style">
+            <p>
+                <input type="radio" name="player" value="Gambler" id="Gambler" required>
+                <label for="Gambler">{{texts["dico"]["Gambler.definition"]}}</label>
+            </p>
+        </div>
+        <div class="char_name">
+            <p>
+                <label for="name">{{session["dico"]["char_selection.name"]}}</label>
+                <input type="text" name = "name" id="name" required>
+            </p>
+        </div>
+        <div class="char_submit">
+
+                <!-- Bouton d'envoi du formulaire -->
+                <input class="btn" type="submit" value="{{session['dico']['char_selection.start']}}">
+                <!-- <button type="submit">Envoyer le formulaire</button> -->
+
+        </div>
+    </form>
+</div>
+
+
+
+{% endblock %}

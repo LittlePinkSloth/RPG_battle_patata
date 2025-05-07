@@ -1,12 +1,12 @@
 import json, os, sys
-
+from ..paths import DATA_DIR
 #python -m rpg_battle_patata
 
 file_paths = {
-    'enemies' : 'rpg_battle_patata/data/ENEMY_TABLE.json',
-    'events' : 'rpg_battle_patata/data/EVENT_TABLE.json',
-    'items' : 'rpg_battle_patata/data/ITEM_TABLE.json',
-    'status' : 'rpg_battle_patata/data/STATUS_TABLE.json',
+    'enemies' : os.path.join(DATA_DIR, 'ENEMY_TABLE.json'),
+    'events' : os.path.join(DATA_DIR, 'EVENT_TABLE.json'),
+    'items' : os.path.join(DATA_DIR, 'ITEM_TABLE.json'),
+    'status' : os.path.join(DATA_DIR, 'STATUS_TABLE.json'),
     'save' : 'rpg_battle_patata/save/',
 }
 

@@ -1,12 +1,14 @@
 from .rpg_exceptions import GameObject
 from ..game.utils import load_datas, file_paths
-from ..game.language_manager import status_dict
+#from ..game.language_manager import status_dict
+from ..game.language_manager import get_dict
+import secrets
 
 class Status(GameObject) :
     nb_status = 0
-    def __init__(self, name, reversible = False, once = False, duration = -1, strengh = 1, idu = 0, applied = 0):
+    def __init__(self, name, reversible = False, once = False, duration = -1, strengh = 1, applied = 0):
         Status.nb_status +=1
-        self.id = Status.nb_status*100 if idu == 0 else idu
+        self.id = secrets.randbelow(1_000_000)
         super().__init__(name if strengh == 1 else self._set_strname(name, strengh))
         self.status = name
         self.duration = duration
@@ -24,12 +26,14 @@ class Status(GameObject) :
 
     @staticmethod
     def _set_strname(name, strengh):
+        status_dict = get_dict("status_dict")
         if strengh < 1:
             return f"{status_dict['status.strengh.slight']} {name}"
         else:
             return f"{status_dict['status.strengh.serious']} {name}"
 
     def _set_effect_rate_buff(self):
+        status_dict = get_dict("status_dict")
         status_table = load_datas(file_paths['status'])['status_table']
         for stat in status_table :
             if status_dict[stat['status']] == self.status :
@@ -59,7 +63,6 @@ class Status(GameObject) :
             "name": self.status,
             "duration": self.duration,
             "strengh": self.strengh,
-            "idu" : self.id,
             "reversible" : self.reversible,
             "once" : self.once,
             "applied" : self.applied

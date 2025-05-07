@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="wrapper">
+    <div class="game-grid">
+        <div class="game-char">
+            <div>
+                <p class="bold"> {{ game.player.class_name }} {{ session["dico"]["game.lvl"] }} {{game.player.lvl}}</p>
+                 <img src={{img[0]}} alt="player" width="150">
+                <p class="bold">{{ game.player.df }} {{ dico["df"] }} / {{ game.player.att }} {{ dico["att"] }} / {{ game.player.luck }} {{ dico["luck"] }}</p>
+                {% if game.player.status %}
+                    <div class="status">
+                        Status :
+                            <ul>
+                            {% for st in game.player.status %}
+                                <li>{{st}}</li>
+                            {% endfor %}
+                            </ul>
+                    </div>
+                {% endif %}
+            </div>
+            {% include "inventory.html" %}
+        </div>
+        <div class="game-battle">
+            <div class = "story_style">
+                {% for msg in game.messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+            <div class="character">
+                <h2>{{ game.player.name }}</h2>
+
+                <div class="health-bar">
+                    <div class="health-fill" style="width: {{ (game.player.hp / game.player.maxhp) * 100 }}%;"></div>
+                </div>
+                <p>{{ game.player.hp }} / {{ game.player.maxhp }} PV</p>
+                <div class="health-bar">
+                    <div class="health-fill" style="width: {{ (game.player.mana / game.player.maxma) * 100 }}%; background-color: #1E90FF;"></div>
+                </div>
+                <p>{{ game.player.mana }} / {{ game.player.maxma }} MANA</p>
+            </div>
+
+            <div class="character">
+                {% if game.enemy.strengh != 'normal' %}
+                    <h2 class="enemy_name">{{ game.enemy.name }}</h2>
+                {% else %}
+                    <h2>{{ game.enemy.name }}</h2>
+                {% endif %}
+                <div class="health-bar">
+                    <div class="health-fill" style="width: {{ (game.enemy.hp / game.enemy.maxhp) * 100 }}%; background-color: #f77676;"></div>
+                </div>
+                <p>{{ game.enemy.hp }} / {{ game.enemy.maxhp }} PV</p>
+            </div>
+            <div id="messages" style="height: 50px; overflow-y: auto; background: #eee; padding: 10px; border: 1px solid #ccc;">
+        {% for msg in game.last_action_result %}
+            <p>{{ msg }}</p>
+        {% endfor %}
+    </div>
+
+            {% if not game.game_over %}
+                {% if game.turn_order[game.step_in_turn] == "player" %}
+                    <form method="post" action="{{ url_for('action') }}">
+                        <button type="submit" name="action" value="attack">{{session["dico"]["game.attack"]}}</button>
+                        <button type="submit" name="action" value="special">{{session["dico"]["game.special"]}}</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{{ url_for('action') }}">
+                        <button type="submit">{{session["dico"]["game.enemy_turn"]}}</button>
+                    </form>
+                {% endif %}
+            {% elif game.game_over and game.victory %}
+                <form method="post" action="{{ url_for('restart') }}">
+                    <button type="submit">{{session["dico"]["game.continue"]}}</button>
+                </form>
+            {% else %}
+                <form method="post" action="{{ url_for('logout') }}">
+                    <button type="submit">{{session["dico"]["game.dead"]}}</button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="game-enemy">
+            <p class="bold">{{ game.enemy.common_name }}</p>
+                <img src={{img[1]}} alt="enemy" width="150">
+            <p class="bold">{{ game.enemy.df }} {{ dico["df"] }} / {{ game.enemy.att }} {{ dico["att"] }}</p>
+            {% if game.enemy.status %}
+                    <div class="status">
+                        Status :
+                            <ul>
+                            {% for st in game.enemy.status %}
+                                <li>{{st}}</li>
+                            {% endfor %}
+                            </ul>
+                    </div>
+                {% endif %}
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+<script>
+    window.onload = function () {
+        const msgBox = document.getElementById("messages");
+        msgBox.scrollTop = msgBox.scrollHeight;
+    };
+</script>
+{% endblock %}
+
+

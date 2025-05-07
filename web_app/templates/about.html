@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block navbar_addition %}
+<li><a href="#about">Top</a> |
+<a href="#storytelling">Story</a> |
+<a href="#learning">Learning</a> |
+<a href="#useofia">IA</a> |
+<a href="#bugs">Bugs</a> |
+<a href="#roadmap">Roadmap</a> |
+<a href="#git">GitHub</a></li>
+{% endblock %}
+{% block content %}
+<div class="wrapper">
+  <div class="about-container">
+    <div id="about">
+      <h1>{{ session['dico']["base.about"] }}</h1>
+      <p class="texte-json-line">{{ dico["about.introduction"] }}</p>
+    </div>
+    <div id="storytelling">
+      <h2>{{ dico["about.story.title"] }}</h2>
+      <p class="texte-json-line">{{ dico["about.story"] }}</p>
+    </div>
+    <div id="learning">
+      <h2>{{ dico["about.learn.title"] }}</h2>
+      <p class="texte-json-line">{{ dico["about.learn"] }}</p>
+    </div>
+    <div id="useofia">
+      <h2>{{ dico["about.ia.title"] }}</h2>
+      <p class="texte-json-line">{{ dico["about.ia"] }}</p>
+    </div>
+    <div id="bugs">
+      <h2>{{ dico["about.bugs.title"] }}</h2>
+      <p class="texte-json-line">{{ dico["about.bugs"] }}</p>
+    </div>
+    <div id="roadmap">
+      <h2>{{ dico["about.roadmap.title"] }}</h2>
+      <p class="texte-json-line">{{ dico["about.roadmap"] }}</p>
+    </div>
+    <div id="git">
+      <h2>{{ dico["about.github.title"] }}</h2>
+      <p>{{ dico["about.github"] }}<a href="https://github.com/LittlePinkSloth/RPG_battle_patata" target="_blank">LittlePinkSloth</a>.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
