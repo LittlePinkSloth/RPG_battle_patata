@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 .env
+.idea
 ignore*
 rpg_battle_patata.egg-info/
 comp_dict.py

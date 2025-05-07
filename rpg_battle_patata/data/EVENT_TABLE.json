@@ -1,7 +1,8 @@
 {
   "events" : [
-    {"event" : "chest", "weight" : 10},
-    {"event" : "fire_camp", "weight" : 10},
-    {"event" : "enemy_generator", "weight" : 40}
+    {"event" : "chest", "weight" : 10, "min_level" : 3},
+    {"event" : "fire_camp", "weight" : 10, "min_level" : 2},
+    {"event" : "enemy_generator", "weight" : 40, "min_level" : 1},
+    {"event" :  "magic_places", "weight" : 5, "min_level" : 4}
 ]
 }

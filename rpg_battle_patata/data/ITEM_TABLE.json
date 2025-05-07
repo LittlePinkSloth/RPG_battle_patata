@@ -10,6 +10,7 @@
     "name" : "Eatable.name_hppota",
     "class" : "Eatable",
     "attribut" : "adaptive",
+    "hp" : "hp",
     "weight": 1
   },
   {
@@ -22,6 +23,7 @@
     "name" : "Eatable.name_manapota",
     "class" : "Eatable",
     "attribut" : "adaptive",
+    "mana" : "mana",
     "weight": 1
   },
   {

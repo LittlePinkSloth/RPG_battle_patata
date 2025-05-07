@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="event_container">
+            <div class="story_style">
+                {% for msg in game.messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+            <div>
+                <img class="event_img" src={{img}} alt="chest" width="300">
+            </div>
+
+            {% if game.finish_event %}
+                <div class="story_style">
+                    {% for msg in game.last_action_result %}
+                        <p>{{ msg }}</p>
+                    {% endfor %}
+                </div>
+
+                {% if game.game_over and not game.victory %}
+                    <form method="post" action="{{ url_for('logout') }}">
+                        <button type="submit">{{ session['dico']["game.dead"] }}</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{{ url_for('restart') }}">
+                        <button type="submit">{{ session['dico']["game.continue"] }}</button>
+                    </form>
+                {% endif %}
+          {% else %}
+
+            <form method="post" action="{{ url_for('chest') }}">
+                <button type="submit" name="action" value="open">{{ session['dico']["chest.open"] }}</button>
+                <button type="submit" name="action" value="no">{{ session['dico']["chest.no"] }}</button>
+            </form>
+          {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

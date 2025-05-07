@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="event_container">
+            <div class="story_style">
+                {% for msg in game.messages %}
+                    <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+            <div>
+                <img class="event_img" src={{img}} alt="magicplace" width="300">
+            </div>
+
+            {% if game.finish_event %}
+                <div class="story_style">
+                    {% for msg in game.last_action_result %}
+                        <p>{{ msg }}</p>
+                    {% endfor %}
+                </div>
+
+                <form method="post" action="{{ url_for('restart') }}">
+                    <button type="submit">{{ session['dico']["game.continue"] }}</button>
+                </form>
+          {% else %}
+
+            <form method="post" action="{{ url_for('magic_place') }}">
+                <button type="submit" name="action" value="action">{{ dico["magic_places.choices"][0] }}</button>
+                <button type="submit" name="action" value="no">{{ dico["magic_places.choices"][1] }}</button>
+            </form>
+          {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

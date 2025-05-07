@@ -1,11 +1,13 @@
 from .utils import *
 from ..entities.characters import *
 from .events import event_generator
-from .display import display_msgs, display_msg, display_list, display_stats
+from .display import display_msgs, display_msg, display_list, display_stats, display_eny_turn
 from ..entities.rpg_exceptions import LoadingError, NoSavedGame
-from rpg_battle_patata.game.language_manager import engine_dict
+from .language_manager import get_dict
+
 
 def openning() :
+    engine_dict = get_dict("engine_dict")
     message = engine_dict["openning.message"]
     list_choices = engine_dict["openning.list_choices"]
     choice = wait_for_input(display_list(list_choices, message))
@@ -35,6 +37,7 @@ def openning() :
 
 
 def chose_player() :
+    engine_dict = get_dict("engine_dict")
     name = input(engine_dict["chose_player.name"]).strip()
     while len(name) == 0 :
         name = input("--> ").strip()
@@ -51,6 +54,7 @@ def chose_player() :
             return Gambler(name)
 
 def load_game(path) :
+    engine_dict = get_dict("engine_dict")
     try:
         if not os.path.exists(path) : raise LoadingError
         data = load_datas(path)
@@ -70,18 +74,20 @@ def game_loop(player):
                 display_stats(player, enemy_)
                 if random.randint(0,1) :
                     player.myturn(enemy_)
-                    enemy_.myturn(player)
+                    display_eny_turn(*enemy_.myturn(player))
                 else :
                     player.is_alive()
-                    enemy_.myturn(player)
+                    display_eny_turn(*enemy_.myturn(player))
                     print()
                     player.myturn(enemy_)
-                    enemy_.is_alive()
+                    msg = enemy_.is_alive()
+                    if isinstance(msg, str) :
+                        display_msg(msg, False)
                     wait_key()
                 clear_console()
             except DeadCharacter as dead:
                 if enemy_.name in dead.__str__() :
-                    display_msgs(dead.__str__(), player.gain_xp(int(enemy_.maxhp/1.5)), is_player=True)
+                    display_msgs(dead.__str__(), player.gain_xp(enemy_), is_player=True)
                     wait_key()
                     clear_console()
                 else :

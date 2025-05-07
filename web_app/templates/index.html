@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+    <div id="index">
+        <div id="index_content">
+
+                <p>
+                    {{ session['dico']["index.greetings"] }}
+                </p>
+
+                <p>
+                    <a href="{{ url_for('char_selection') }}" class="btn">{{ session['dico']["index.startgame"] }}</a>
+                </p>
+
+        </div>
+    </div>
+
+
+
+{% endblock %}

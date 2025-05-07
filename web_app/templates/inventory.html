@@ -1,0 +1,11 @@
+{% if game.consumable_item > 0 %}
+  <div class="inventory">
+    <div><h3>{{ session["dico"]["inventory.inventory"] }}</h3>
+      <form method="post" action = "{{ url_for('use_item') }}">
+        {% for it in game.player.inventory %}
+          {% if it.__class__.__name__ != "Wearable" %}
+            <button class="btn_inventory" type="submit" name="use" value="{{it.id}}">{{ it.name }}</button>
+          {% endif %}
+        {% endfor %}</form></div>
+  </div>
+{% endif %}
