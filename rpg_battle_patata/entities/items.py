@@ -34,7 +34,7 @@ class Item(GameObject):
             df = f"{str(self.df)} {stats_dict['df']}"
         else :
             df = 0
-        
+
         pres = f"{self.name} : "
         before = False
         for val in [hp, mana,att,df] :
