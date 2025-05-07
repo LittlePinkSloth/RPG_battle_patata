@@ -18,10 +18,23 @@ class Item(GameObject):
 
     def __str__(self):
         stats_dict = get_dict("stats_dict")
-        hp = f"{str(self.hp) + f' {stats_dict['hp']}' if self.hp else ''}"
-        mana = f"{str(self.hp) + f' {stats_dict['mana']}' if self.mana else ''}"
-        att = f"{str(self.hp) + f' {stats_dict['att']}' if self.att else ''}"
-        df = f"{str(self.hp) + f' {stats_dict['df']}' if self.hp else ''}"
+        if self.hp :
+            hp = f"{str(self.hp)} {stats_dict['hp']}"
+        else :
+            hp = 0
+        if self.mana :
+            mana = f"{str(self.mana)} {stats_dict['mana']}"
+        else :
+            mana = 0
+        if self.att :
+            att = f"{str(self.att)} {stats_dict['att']}"
+        else :
+            att = 0
+        if self.df :
+            df = f"{str(self.df)} {stats_dict['df']}"
+        else :
+            df = 0
+        
         pres = f"{self.name} : "
         before = False
         for val in [hp, mana,att,df] :
