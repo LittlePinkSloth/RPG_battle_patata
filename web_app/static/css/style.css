@@ -194,9 +194,7 @@ a {
     width : 40%;
 }
 
-.event_img {
-    border-radius : 10px;
-}
+
 
 .char_style {
     text-align: justify;
@@ -241,7 +239,7 @@ a {
       'story story story'
       'char1 char2 char3'
       'name . btn';
-  grid-gap: 10px;
+  grid-gap: 5px;
   width:50%;
   margin: 0 auto; /* centre horizontalement */
   grid-template-columns: 1fr 1fr 1fr;  /* trois colonnes de taille égale */
@@ -261,7 +259,7 @@ a {
 .game-grid {
     display : grid;
    grid-template-areas:
-      'char battle enemy'
+      'char battle enemy';
   grid-gap: 10px;
   width:50%;
   margin: 0 auto; /* centre horizontalement */
@@ -300,4 +298,89 @@ a {
 
 .about-container h1 {
     margin-top : 20px;
+}
+
+.img-container {
+    width : 100%;
+    max-width : 350px;
+    margin: 0 auto;
+}
+
+.img-container img {
+    width : 100%;
+    height: auto;
+    border-radius : 10px;
+    display: block;      /* évite le petit espace sous l'image */
+    margin: 0 auto;
+}
+
+
+
+@media(max-width:1450px) {
+    .game-grid {
+      grid-gap: 5px;
+      width:90%;
+    }
+
+
+    .story_style {
+        font-size:2vw;
+    }
+
+}
+
+
+@media(max-width:1100px) {
+    .char-grid {
+      grid-gap: 10px;
+      width:90%;
+      grid-template-columns: 1fr 1fr 1fr;  /* trois colonnes de taille égale */
+    }
+
+    .char_style label {
+        font-size: 2.5vw;
+    }
+}
+
+@media(max-width:900px) {
+    #index_content {
+        width : 90%;
+        font-size: 1.3em;
+    }
+
+    .character {
+        width: 20%;
+    }
+
+    .character h2 {
+        font-size: 2vw;
+    }
+
+    .character p {
+        font-size: 1.5vw;
+    }
+
+    .game-char img {
+        display: none;
+    }
+
+    .game-enemy img {
+        display: none;
+    }
+
+}
+
+@media(max-width:650px) {
+    .char-grid {
+      grid-gap: 5px;
+      width:90%;
+      grid-template-columns: 1fr 1fr 1fr;  /* trois colonnes de taille égale */
+      grid-template-areas:
+      'story story story'
+      'char1 char1 char1'
+      'char2 char2 char2'
+      'char3 char3 char3'
+      'name . btn';
+    }
+
 }
