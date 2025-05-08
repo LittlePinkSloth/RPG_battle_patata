@@ -139,5 +139,10 @@ def magic_place():
         game.resolve_magicplace_event()
     return render_template("magicplace.html", game=game, dico =get_dict("events_dict"), request=request, img = image_table["MagicPlace"])
 
+
+@app.route("/ping") #used to keep the server alive
+def ping():
+    return "pong", 200
+
 if __name__ == "__main__":
     app.run(debug=True)
