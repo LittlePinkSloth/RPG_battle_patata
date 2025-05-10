@@ -36,7 +36,6 @@ def home():
 @app.route('/lang_selection/<lang>')
 def lang_selection(lang) :
     session['lang'] = lang
-    print(lang)
     session['dico'] = get_dict("webapp_dict")
     return redirect(request.args.get('next', '/'))
 

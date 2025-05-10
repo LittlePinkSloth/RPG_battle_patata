@@ -40,11 +40,11 @@ body {
 button {
     background-color: #75825e;
     color: white;
-    padding: 10px 20px;
-    margin: 10px;
+    padding: 7px 12px;
+    margin: 5px;
     border: none;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 1.8vw;
     cursor: pointer;
 }
 button:hover {
@@ -65,12 +65,12 @@ button:hover {
 .btn {
     color : white;
     display: block;
-    margin: 10px;
+    margin: 7px;
     border: none;
     background-color: #75825e;
-    padding: 10px 20px;
+    padding: 5px 12px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 1.8vw;
     text-align: center;
 }
 
@@ -123,11 +123,15 @@ button:hover {
     padding: 0;
     display: flex;
     width: 100%;
-    vertical-align:center;
+    align-items:center;
 }
 
 .navbar-item {
     margin: 0 10px;
+    font-size :16px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 
 }
 
@@ -324,13 +328,15 @@ a {
 
 
     .story_style {
-        font-size:2vw;
+        font-size:2.2vw;
     }
 
 }
 
 
 @media(max-width:1100px) {
+
+
     .char-grid {
       grid-gap: 10px;
       width:90%;
@@ -348,8 +354,12 @@ a {
         font-size: 1.3em;
     }
 
+
+
     .character {
         width: 20%;
+        margin : 0px;
+        margin-bottom:5px;
     }
 
     .character h2 {
@@ -368,9 +378,19 @@ a {
         display: none;
     }
 
+    .game-char, .game-enemy {
+        font-size: 2vw;
+        margin-top:10px;
+    }
+
 }
 
 @media(max-width:650px) {
+
+    .navbar-item, .footbar {
+        font-size: 2.7vw;
+    }
+
     .char-grid {
       grid-gap: 5px;
       width:90%;

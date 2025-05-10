@@ -10,7 +10,7 @@ Dans ce jeu, vous incarnez un héros intrépide qui explore un donjon rempli de 
 
 ## ⚔️ Fonctionnalités
 
-- Interface web !
+- Interface web ! V0.2.1 : responsive (patch 0.2.1 enhance responsive)
 - Choix de personnages jouables avec des classes différentes
 - Système de combat tour par tour
 - Génération aléatoire d'événements, ennemis et objets via des tables JSON
